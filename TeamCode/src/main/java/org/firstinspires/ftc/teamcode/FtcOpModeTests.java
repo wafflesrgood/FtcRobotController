@@ -33,7 +33,6 @@ public class FtcOpModeTests extends LinearOpMode {
         while (opModeIsActive()) {
             telemetry.addData("Status", "Running");
             telemetry.update();
-
         }
     }
 }
