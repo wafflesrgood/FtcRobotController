@@ -336,7 +336,7 @@ public class AutonomousDriveMode extends LinearOpMode {
                     BuiltinCameraDirection.BACK, tfod);
         }
 
-    }
+    } //video function
     private void telemetryTfod() {
 
         List<Recognition> currentRecognitions = tfod.getRecognitions();
@@ -352,6 +352,6 @@ public class AutonomousDriveMode extends LinearOpMode {
             telemetry.addData("- Position", "%.0f / %.0f", x, y);
             telemetry.addData("- Size", "%.0f x %.0f", recognition.getWidth(), recognition.getHeight());
         }   // end for() loop
-    }
+    } //video function
 }
 
