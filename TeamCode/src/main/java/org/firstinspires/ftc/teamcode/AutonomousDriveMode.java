@@ -37,8 +37,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.tfod.TfodProcessor;
+
+import java.util.List;
 
 /*
  * This OpMode illustrates the concept of driving a path based on encoder counts.
@@ -98,6 +101,10 @@ public class AutonomousDriveMode extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+        //initializing camera stuff//
+        initTfod();
+        telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
+        telemetry.addData(">", "Touch Play to start OpMode");
 
         // Initialize the drive system variables.
         //Front
@@ -134,7 +141,10 @@ public class AutonomousDriveMode extends LinearOpMode {
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
-
+        //Camera command
+        telemetryTfod();
+        //
+        // Push telemetry to the Driver Station.
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
         encoderDrive(DRIVE_SPEED,  48,  48, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
@@ -327,6 +337,21 @@ public class AutonomousDriveMode extends LinearOpMode {
         }
 
     }
+    private void telemetryTfod() {
 
+        List<Recognition> currentRecognitions = tfod.getRecognitions();
+        telemetry.addData("# Objects Detected", currentRecognitions.size());
+
+        // Step through the list of recognitions and display info for each one.
+        for (Recognition recognition : currentRecognitions) {
+            double x = (recognition.getLeft() + recognition.getRight()) / 2;
+            double y = (recognition.getTop() + recognition.getBottom()) / 2;
+
+            telemetry.addData("", " ");
+            telemetry.addData("Image", "%s (%.0f %% Conf.)", recognition.getLabel(), recognition.getConfidence() * 100);
+            telemetry.addData("- Position", "%.0f / %.0f", x, y);
+            telemetry.addData("- Size", "%.0f x %.0f", recognition.getWidth(), recognition.getHeight());
+        }   // end for() loop
+    }
 }
 
