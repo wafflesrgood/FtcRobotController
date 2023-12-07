@@ -33,6 +33,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
@@ -69,7 +70,7 @@ import java.util.List;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Robot: Auto Drive By Encoder", group="Robot")
+@Autonomous
 
 public class AutonomousDriveMode extends LinearOpMode {
     //Camera usage initializations//
@@ -78,19 +79,16 @@ public class AutonomousDriveMode extends LinearOpMode {
     private VisionPortal visionPortal;
     ///////////////////////////////
     /* Declare OpMode members. */
-    private DcMotor         leftDriveF   = null;
-    private DcMotor         leftDriveB   = null;
-    private DcMotor         rightDriveF  = null;
-    private DcMotor         rightDriveB  = null;
-
+    private DcMotor leftDriveF   = null;
+    private DcMotor leftDriveB   = null;
+    private DcMotor rightDriveF  = null;
+    private DcMotor rightDriveB  = null;
+    private DcMotor ArmMotor = null;
+    private Servo ClawServo = null;
+    private Servo JointServo = null;
     private ElapsedTime     runtime = new ElapsedTime();
 
-    // Calculate the COUNTS_PER_INCH for your specific drive train.
-    // Go to your motor vendor website to determine your motor's COUNTS_PER_MOTOR_REV
-    // For external drive gearing, set DRIVE_GEAR_REDUCTION as needed.
-    // For example, use a value of 2.0 for a 12-tooth spur gear driving a 24-tooth spur gear.
-    // This is gearing DOWN for less speed and more torque.
-    // For gearing UP, use a gear ratio less than 1.0. Note this will affect the direction of wheel rotation.
+    // Constants for encoder Drivetrain UPDATE ASAP!
     static final double     COUNTS_PER_MOTOR_REV    = 1440 ;    // eg: TETRIX Motor Encoder
     static final double     DRIVE_GEAR_REDUCTION    = 1.0 ;     // No External Gearing.
     static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
@@ -130,6 +128,13 @@ public class AutonomousDriveMode extends LinearOpMode {
         rightDriveF.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftDriveB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightDriveB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        /////////////////////////////////////////////////////////
+        //Arm Motor Initialization////
+        ArmMotor = hardwareMap.get(DcMotor.class, "ArmMotor");
+        ArmMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        ArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        JointServo = hardwareMap.get(Servo.class, "JointServo");
+        ClawServo = hardwareMap.get(Servo.class, "ClawServo");
 
         // Send telemetry message to indicate successful Encoder reset
         telemetry.addData("Starting at",  "%7d :%7d",
@@ -137,33 +142,59 @@ public class AutonomousDriveMode extends LinearOpMode {
                           rightDriveF.getCurrentPosition(),
                 leftDriveB.getCurrentPosition(),
                 rightDriveB.getCurrentPosition());
+        telemetry.addData("Arm Position", "%7d :%7d", ArmMotor.getCurrentPosition());
         telemetry.update();
 
         // Wait for the game to start (driver presses PLAY)
+        ArmMotor.setTargetPosition(5);
+        ArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        ArmMotor.setPower(0.4);
+        ClawServo.setPosition(0.65);
         waitForStart();
-        //Camera command
-        telemetryTfod();
-        //
-        // Push telemetry to the Driver Station.
-        // Step through each leg of the path,
-        // Note: Reverse movement is obtained by setting a negative distance (not speed)
-        encoderDrive(DRIVE_SPEED,  48,  48, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
-        encoderDrive(TURN_SPEED,   12, -12, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
-        encoderDrive(DRIVE_SPEED, -24, -24, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
+        //Camera command that stores XCoordinate of pixel
 
-        telemetry.addData("Path", "Complete");
+        double xCoordinateValue = telemetryTfod();
+        //
+
+        //write commands that will grab and lift pixel
+        ClawServo.setPosition(0.48); //Grips pixel
+        JointServo.setPosition(0.9); //prepares wrist to lift
+        ArmMotor.setTargetPosition(60);
+        ArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        ArmMotor.setPower(0.4); //lifts
+        //
+        //
+        //
+        //
+        //
+        if (xCoordinateValue < 100) //arbitrary value. Replace ASAP!
+        {
+            //drive to left spike
+        }
+        if(xCoordinateValue > 400)//arbitrary value. Replace ASAP!
+        {
+            //drive to right spike
+        }
+        if(100 < xCoordinateValue && xCoordinateValue < 400)//arbitrary value. Replace ASAP!
+        {
+            //drive to middle spike
+        }
+        sleep(1000);
+        //write commands that will place pixel
+        ArmMotor.setTargetPosition(5);
+        ArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        ArmMotor.setPower(-0.4); //arm back down
+        JointServo.setPosition(0.78); //wrist down
+        ClawServo.setPosition(0.65); //drops pixel
+       // encoderDrive(DRIVE_SPEED,  48,  48, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
+       // encoderDrive(TURN_SPEED,   12, -12, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
+       // encoderDrive(DRIVE_SPEED, -24, -24, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
+
+       // telemetry.addData("Path", "Complete");
         telemetry.update();
         sleep(1000);  // pause to display final telemetry message.
     }
 
-    /*
-     *  Method to perform a relative move, based on encoder counts.
-     *  Encoders are not reset as the move is based on the current position.
-     *  Move will stop if any of three conditions occur:
-     *  1) Move gets to the desired position
-     *  2) Move runs out of time
-     *  3) Driver stops the OpMode running.
-     */
     public void strafeDriveH (double speed, double Inches, double timeoutS)
     {
         int newFLBRTarget;
@@ -336,9 +367,9 @@ public class AutonomousDriveMode extends LinearOpMode {
                     BuiltinCameraDirection.BACK, tfod);
         }
 
-    } //video function
-    private void telemetryTfod() {
-
+    } //initialize video function
+    private double telemetryTfod() {
+        double xCoordinate = 0.0;
         List<Recognition> currentRecognitions = tfod.getRecognitions();
         telemetry.addData("# Objects Detected", currentRecognitions.size());
 
@@ -351,7 +382,9 @@ public class AutonomousDriveMode extends LinearOpMode {
             telemetry.addData("Image", "%s (%.0f %% Conf.)", recognition.getLabel(), recognition.getConfidence() * 100);
             telemetry.addData("- Position", "%.0f / %.0f", x, y);
             telemetry.addData("- Size", "%.0f x %.0f", recognition.getWidth(), recognition.getHeight());
+            xCoordinate = x;
         }   // end for() loop
-    } //video function
+        return xCoordinate;
+    } //video function returns x coord
 }
 
