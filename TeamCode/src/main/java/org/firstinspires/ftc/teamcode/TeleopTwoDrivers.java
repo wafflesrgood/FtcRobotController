@@ -45,21 +45,25 @@ public class TeleopTwoDrivers extends LinearOpMode {
         backLeft.setDirection(DcMotor.Direction.FORWARD);
         backRight.setDirection(DcMotor.Direction.REVERSE);
 
+        //multiplier and flippers
+        double multiplier = 0.3;
+        double flipper = 1;
+
 
         waitForStart();
         while (opModeIsActive()) {
             ////CODE FOR DRIVETRAIN ///
             double drive = -gamepad1.left_stick_x;
             double strafe = gamepad1.left_stick_y;
-            double rotate = -gamepad1.right_stick_x;
+            double rotate = flipper * gamepad1.right_stick_x;
             double frontLeftPower = Range.clip(drive + strafe + rotate, -1.0, 1.0);
             double frontRightPower = Range.clip(drive - strafe - rotate, -1.0, 1.0);
             double backLeftPower = Range.clip(drive - strafe + rotate, -1.0, 1.0);
             double backRightPower = Range.clip(drive + strafe - rotate, -1.0, 1.0);
-            frontLeft.setPower(0.4 * frontLeftPower);
-            frontRight.setPower(0.4 * frontRightPower);
-            backLeft.setPower(0.4 * backLeftPower);
-            backRight.setPower(0.4 * backRightPower);
+            frontLeft.setPower(multiplier * frontLeftPower);
+            frontRight.setPower(multiplier * frontRightPower);
+            backLeft.setPower(multiplier * backLeftPower);
+            backRight.setPower(multiplier * backRightPower);
             //Updating telemetry
             telemetry.addData("Status", "Running");
             telemetry.addData("Front Left Power", frontLeftPower);
@@ -80,19 +84,24 @@ public class TeleopTwoDrivers extends LinearOpMode {
             //Wrist Servo Control
             if (gamepad2.a) { JointServo.setPosition(0.78);} //for grabbing?
             if (gamepad2.b) { JointServo.setPosition(0.9);} //for lifting?
-            if (gamepad2.y) { ClawServo.setPosition(1); }  //for placing?
+            if (gamepad2.y) { JointServo.setPosition(1.3); }  //for placing?
             //
             //Claw Servo Control
-            if (gamepad2.right_bumper) { ClawServo.setPosition(0.65);} // open
-            if (gamepad2.left_bumper) { ClawServo.setPosition(0.48);} // close
+            if (gamepad2.right_bumper) { ClawServo.setPosition(0.75);} // open
+            if (gamepad2.left_bumper) { ClawServo.setPosition(0.5);} // close
 
 
             //Intake mill controls (GAMEPAD 1)
             if (gamepad1.right_bumper) { Intake.setPower(0.5);}
             if (gamepad1.left_bumper) { Intake.setPower(-0.5); }
             if (gamepad1.a) { Intake.setPower(0);}
-            //Drone Launch! (Gamepad1)
-            if (gamepad1.x) { Drone.setPosition(0.8);}
+
+            //Swap Speed! (Gamepad 1)
+            if (gamepad1.b) { multiplier = 0.8; }
+            if (gamepad1.y) { multiplier = 0.3; }
+
+            //Swap Direction! (Gamepad1)
+            if (gamepad1.x) { flipper = -1 * flipper ;}
         }
     }
 }
