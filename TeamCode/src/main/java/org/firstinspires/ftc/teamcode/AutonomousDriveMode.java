@@ -80,17 +80,19 @@ public class AutonomousDriveMode extends LinearOpMode {
     private VisionPortal visionPortal;
     ///////////////////////////////
     /* Declare OpMode members. */
+
     private DcMotor leftDriveF   = null;
     private DcMotor leftDriveB   = null;
     private DcMotor rightDriveF  = null;
     private DcMotor rightDriveB  = null;
+
     private DcMotor ArmMotor = null;
     private Servo ClawServo = null;
     private Servo JointServo = null;
-    private DcMotor Intake = null;
+    private DcMotor intake = null;
     private ElapsedTime     runtime = new ElapsedTime();
 
-    static final double     COUNTS_PER_MOTOR_REV    = 537.7 ;    // Gobilda Planetary Motor
+    static final double     COUNTS_PER_MOTOR_REV    = 537.7 ;    // GoBilda Planetary Motor
     static final double     DRIVE_GEAR_REDUCTION    = 1.0 ;     // No External Gearing.
     static final double     WHEEL_DIAMETER_INCHES   = 3.77953 ;     // For figuring circumference
     static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
@@ -105,13 +107,12 @@ public class AutonomousDriveMode extends LinearOpMode {
         telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
         telemetry.addData(">", "Touch Play to start OpMode");
         //initialize intake motor
-        Intake = hardwareMap.get(DcMotor.class, "Intake");
-        //
+        intake = hardwareMap.get(DcMotor.class, "Intake");
         // Initialize the drive system variables.
-        //Front
+        // Front
         leftDriveF  = hardwareMap.get(DcMotor.class, "frontLeft");
         rightDriveF = hardwareMap.get(DcMotor.class, "frontRight");
-        //Back
+        // Back
         leftDriveB  = hardwareMap.get(DcMotor.class, "backLeft");
         rightDriveB = hardwareMap.get(DcMotor.class, "backRight");
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
@@ -217,7 +218,8 @@ public class AutonomousDriveMode extends LinearOpMode {
 
     public void encoderDrive(double speed,
                              double leftInches, double rightInches,
-                             double timeoutS) {
+                             double timeoutS)
+    {
         int newLeftTarget;
         int newRightTarget;
 
@@ -253,7 +255,7 @@ public class AutonomousDriveMode extends LinearOpMode {
             // onto the next step, use (isBusy() || isBusy()) in the loop test.
             while (opModeIsActive() &&
                    (runtime.seconds() < timeoutS) &&
-                   (leftDriveF.isBusy() || rightDriveF.isBusy() ||leftDriveB.isBusy() ||rightDriveB.isBusy()))
+                   (leftDriveF.isBusy() || rightDriveF.isBusy() || leftDriveB.isBusy() || rightDriveB.isBusy()))
             {
                 //imagine i put a telemetry statement here
                 telemetry.addData("Top Left Motor Position", "%7d :%7d", leftDriveF.getCurrentPosition());
@@ -277,18 +279,25 @@ public class AutonomousDriveMode extends LinearOpMode {
             sleep(200);   // optional pause after each move.
         }
     }
-    ///Optical Detection Function Library /////
+
+    public void strafeDrive(
+            double speed)
+    {
+
+    }
+
+    // Optical Detection Function Library
     private void DropPixel()
     {
         JointServo.setPosition(0.78); //wrist down
         ClawServo.setPosition(0.75); //let go of pixel
         //Intake Spit Out Mode (SLOW!)
-        Intake.setPower(-0.25);
+        intake.setPower(-0.25);
         //Drive back a few inches to spit out
         encoderDrive(DRIVE_SPEED,  -8,  -8, 3.0);
-        Intake.setPower(0.0); //turn off intake mill
-        ClawServo.setPosition(0.5); //grip so claw doesnt hit side when wrist moves next
-        JointServo.setPosition(0.9); //wrist back up
+        intake.setPower(0.0); //        turn off intake mill
+        ClawServo.setPosition(0.5); //  grip so claw doesn't hit side when wrist moves next
+        JointServo.setPosition(0.9); // wrist back up
 
     }
     private void initTfod() {
@@ -299,8 +308,8 @@ public class AutonomousDriveMode extends LinearOpMode {
                 // With the following lines commented out, the default TfodProcessor Builder
                 // will load the default model for the season. To define a custom model to load,
                 // choose one of the following:
-                //   Use setModelAssetName() if the custom TF Model is built in as an asset (AS only).
-                //   Use setModelFileName() if you have downloaded a custom team model to the Robot Controller.
+                // Use setModelAssetName() if the custom TF Model is built in as an asset (AS only).
+                // Use setModelFileName() if you have downloaded a custom team model to the Robot Controller.
                 //.setModelAssetName(TFOD_MODEL_ASSET)
                 //.setModelFileName(TFOD_MODEL_FILE)
 
