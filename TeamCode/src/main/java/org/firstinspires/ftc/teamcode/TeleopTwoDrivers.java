@@ -15,6 +15,7 @@ public class TeleopTwoDrivers extends LinearOpMode {
     private Servo Drone;
     private Servo JointServo;
     private DcMotor Intake;
+    private DcMotor Hanger;
 
     public void runOpMode() throws InterruptedException {
         telemetry.addData("Mode", "waiting");
@@ -22,6 +23,7 @@ public class TeleopTwoDrivers extends LinearOpMode {
         //Initialization of Arm Motor
         ArmMotor = hardwareMap.get(DcMotor.class, "ArmMotor");
         ArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Hanger = hardwareMap.get(DcMotor.class, "Hanging");
         //
         // Initialization of movement motors
         frontLeft = hardwareMap.get(DcMotor.class, "frontLeft");
@@ -79,7 +81,10 @@ public class TeleopTwoDrivers extends LinearOpMode {
             ///ARM MOVEMENT (GAMEPAD 2)
             double ArmPower = gamepad2.right_stick_y;
             ArmMotor.setPower(0.4 * ArmPower);
-            //
+            //Hanger Movement (GAMEPAD 2)
+            double HangPower = gamepad2.left_stick_y;
+            Hanger.setPower(HangPower * 0.8);
+
 
             //Wrist Servo Control
             if (gamepad2.a) { JointServo.setPosition(0.78);} //for grabbing?
@@ -102,6 +107,13 @@ public class TeleopTwoDrivers extends LinearOpMode {
 
             //Swap Direction! (Gamepad1)
             if (gamepad1.x) { flipper = -1 * flipper ;}
+            //Drone Launch! (Gamepad2)
+            if (gamepad2.x)
+            {
+                Drone.setPosition(-1);
+                // Drone.setPosition(1);
+                // Drone.setPosition(0.5);
+            }
         }
     }
 }

@@ -73,46 +73,44 @@ import java.util.List;
 
 @Autonomous
 
-public class AutonomousDriveMode extends LinearOpMode {
+public class AutonSpikeOnly extends LinearOpMode {
     //Camera usage initializations//
-    private static final boolean USE_WEBCAM = true;
+    /*private static final boolean USE_WEBCAM = true;
     private TfodProcessor tfod;
     private VisionPortal visionPortal;
     ///////////////////////////////
-    /* Declare OpMode members. */
-    private DcMotor leftDriveF   = null;
-    private DcMotor leftDriveB   = null;
-    private DcMotor rightDriveF  = null;
-    private DcMotor rightDriveB  = null;
-    private DcMotor ArmMotor = null;
-    private Servo ClawServo = null;
-    private Servo JointServo = null;
-    private DcMotor Intake = null;
-    private ElapsedTime     runtime = new ElapsedTime();
 
-    static final double     COUNTS_PER_MOTOR_REV    = 537.7 ;    // Gobilda Planetary Motor
-    static final double     DRIVE_GEAR_REDUCTION    = 1.0 ;     // No External Gearing.
-    static final double     WHEEL_DIAMETER_INCHES   = 3.77953 ;     // For figuring circumference
-    static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
-                                                      (WHEEL_DIAMETER_INCHES * 3.1415);
-    static final double     DRIVE_SPEED             = 0.4;
-    static final double     TURN_SPEED              = 0.4;
+     */
+    /* Declare OpMode members. */
+    private DcMotor leftDriveF = null;
+    private DcMotor leftDriveB = null;
+    private DcMotor rightDriveF = null;
+    private DcMotor rightDriveB = null;
+    private Servo Wrist = null;
+    private Servo CRPixelPusher = null;
+    private Servo Drone = null;
+    private Servo SpikePixel = null;
+    private DcMotor Intake = null;
+    private ElapsedTime runtime = new ElapsedTime();
+
+    static final double COUNTS_PER_MOTOR_REV = 537.7;    // Gobilda Planetary Motor
+    static final double DRIVE_GEAR_REDUCTION = 1.0;     // No External Gearing.
+    static final double WHEEL_DIAMETER_INCHES = 3.77953;     // For figuring circumference
+    static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
+            (WHEEL_DIAMETER_INCHES * 3.1415);
+    static final double DRIVE_SPEED = 0.4;
 
     @Override
     public void runOpMode() {
-        //initializing camera stuff//
-        initTfod();
-        telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
-        telemetry.addData(">", "Touch Play to start OpMode");
-        //initialize intake motor
+
         Intake = hardwareMap.get(DcMotor.class, "Intake");
         //
         // Initialize the drive system variables.
         //Front
-        leftDriveF  = hardwareMap.get(DcMotor.class, "frontLeft");
+        leftDriveF = hardwareMap.get(DcMotor.class, "frontLeft");
         rightDriveF = hardwareMap.get(DcMotor.class, "frontRight");
         //Back
-        leftDriveB  = hardwareMap.get(DcMotor.class, "backLeft");
+        leftDriveB = hardwareMap.get(DcMotor.class, "backLeft");
         rightDriveB = hardwareMap.get(DcMotor.class, "backRight");
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
@@ -133,49 +131,49 @@ public class AutonomousDriveMode extends LinearOpMode {
         rightDriveB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         /////////////////////////////////////////////////////////
         //Arm Motor Initialization////
-        ArmMotor = hardwareMap.get(DcMotor.class, "ArmMotor");
-        ArmMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        ArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        JointServo = hardwareMap.get(Servo.class, "JointServo");
-        ClawServo = hardwareMap.get(Servo.class, "ClawServo");
+        Intake = hardwareMap.get(DcMotor.class, "ArmMotor");
+        Intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        Intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Wrist = hardwareMap.get(Servo.class, "JointServo");
+        Drone = hardwareMap.get(Servo.class, "ClawServo");
 
 
         // Wait for the game to start (driver presses PLAY)
 
         waitForStart();
         //Camera command that stores XCoordinate of the team prop
-
-        double xCoordinateValue = telemetryTfod();
         sleep(500);
-        visionPortal.close();
-        //
+        double xCoordinateValue = 0;
 
-
-        encoderDrive(DRIVE_SPEED,  25,  25, 3.0);
-        ////
+        //write function that lets strafing right x inches happen and put it here.
+        encoderDrive(DRIVE_SPEED, 25, 25, 3.0);
 
         if (xCoordinateValue != 0.0 && xCoordinateValue < 200) //good experimental val
         {
-            //drive to middle spike
+            //TODO: write code to drive to middle spike
 
         }
-        if(xCoordinateValue > 200)//good experimental val
+        if (xCoordinateValue > 200)//good experimental val
         {
-            //drive to right spike
+            //TODO: write code to drive to right spike
 
-        }
-        else
+        } else
         {
-            //drive to left spike
+            //TODO: write code to drive to left spike
 
         }
+        SpikePixel.setPosition(0.5); //write in the value that lets the auton pixel get dropped
 
         sleep(1000);
-       // encoderDrive(DRIVE_SPEED,  48,  48, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
-       // encoderDrive(TURN_SPEED,   12, -12, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
-       // encoderDrive(DRIVE_SPEED, -24, -24, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
+        //TODO: Write code that drives robot to the CORRECT STACK on the board and place yellow
+        //TODO: Write code that drives robot to white stack and run function to pick up
+        //TODO: write code that drives robot to board and place two pixels
 
-       // telemetry.addData("Path", "Complete");
+        // encoderDrive(DRIVE_SPEED,  48,  48, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
+        // encoderDrive(TURN_SPEED,   12, -12, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
+        // encoderDrive(DRIVE_SPEED, -24, -24, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
+
+        // telemetry.addData("Path", "Complete");
         telemetry.update();
         sleep(1000);  // pause to display final telemetry message.
     }
@@ -193,8 +191,8 @@ public class AutonomousDriveMode extends LinearOpMode {
         if (opModeIsActive()) {
 
             // Determine new target position, and pass to motor controller
-            newLeftTarget = leftDriveF.getCurrentPosition() + (int)(leftInches * COUNTS_PER_INCH);
-            newRightTarget = rightDriveF.getCurrentPosition() + (int)(rightInches * COUNTS_PER_INCH);
+            newLeftTarget = leftDriveF.getCurrentPosition() + (int) (leftInches * COUNTS_PER_INCH);
+            newRightTarget = rightDriveF.getCurrentPosition() + (int) (rightInches * COUNTS_PER_INCH);
             leftDriveF.setTargetPosition(newLeftTarget);
             rightDriveF.setTargetPosition(newRightTarget);
             leftDriveB.setTargetPosition(newLeftTarget);
@@ -220,9 +218,8 @@ public class AutonomousDriveMode extends LinearOpMode {
             // However, if you require that BOTH motors have finished their moves before the robot continues
             // onto the next step, use (isBusy() || isBusy()) in the loop test.
             while (opModeIsActive() &&
-                   (runtime.seconds() < timeoutS) &&
-                   (leftDriveF.isBusy() || rightDriveF.isBusy() ||leftDriveB.isBusy() ||rightDriveB.isBusy()))
-            {
+                    (runtime.seconds() < timeoutS) &&
+                    (leftDriveF.isBusy() || rightDriveF.isBusy() || leftDriveB.isBusy() || rightDriveB.isBusy())) {
                 //imagine i put a telemetry statement here
                 telemetry.addData("Top Left Motor Position", "%7d :%7d", leftDriveF.getCurrentPosition());
                 telemetry.addData("Top Right Motor Position", "%7d :%7d", rightDriveF.getCurrentPosition());
@@ -245,92 +242,82 @@ public class AutonomousDriveMode extends LinearOpMode {
             sleep(200);   //  pause after each move.
         }
     }
+    public void EncoderDriveStrafe(double speed, double InchesStrafe, double direction, double timeoutS) {
+        int StrafeFL;
+        int StrafeBL;
+        int StrafeFR;
+        int StrafeBR;
+
+        // Ensure that the OpMode is still active
+        if (opModeIsActive()) {
+
+            // Determine new target position, and pass to motor controller
+            if(direction = 0) { //strafing right
+            StrafeFL = leftDriveF.getCurrentPosition() + (int) (InchesStrafe * COUNTS_PER_INCH);
+            StrafeBL = leftDriveB.getCurrentPosition() + (int) (InchesStrafe * COUNTS_PER_INCH);
+            StrafeFR = rightDriveF.getCurrentPosition() + (int) (InchesStrafe * COUNTS_PER_INCH);
+            StrafeBR = rightDriveF.getCurrentPosition() + (int) (InchesStrafe * COUNTS_PER_INCH); }
+            if(direction = 1)
+            { //strafing left
+
+            }
+
+            leftDriveF.setTargetPosition(newLeftTarget);
+            rightDriveF.setTargetPosition(newRightTarget);
+            leftDriveB.setTargetPosition(newLeftTarget);
+            rightDriveB.setTargetPosition(newRightTarget);
+
+            // Turn On RUN_TO_POSITION
+            leftDriveF.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightDriveF.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftDriveB.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightDriveB.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            // reset the timeout time and start motion.
+            runtime.reset();
+            leftDriveF.setPower(Math.abs(speed));
+            rightDriveF.setPower(Math.abs(speed));
+            leftDriveB.setPower(Math.abs(speed));
+            rightDriveB.setPower(Math.abs(speed));
+
+            // keep looping while we are still active, and there is time left, and both motors are running.
+            // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
+            // its target position, the motion will stop.  This is "safer" in the event that the robot will
+            // always end the motion as soon as possible.
+            // However, if you require that BOTH motors have finished their moves before the robot continues
+            // onto the next step, use (isBusy() || isBusy()) in the loop test.
+            while (opModeIsActive() &&
+                    (runtime.seconds() < timeoutS) &&
+                    (leftDriveF.isBusy() || rightDriveF.isBusy() || leftDriveB.isBusy() || rightDriveB.isBusy())) {
+                //imagine i put a telemetry statement here
+                telemetry.addData("Top Left Motor Position", "%7d :%7d", leftDriveF.getCurrentPosition());
+                telemetry.addData("Top Right Motor Position", "%7d :%7d", rightDriveF.getCurrentPosition());
+                telemetry.addData("Back Left Motor Position", "%7d :%7d", leftDriveB.getCurrentPosition());
+                telemetry.addData("Back Right Motor Position", "%7d :%7d", rightDriveB.getCurrentPosition());
+            }
+
+            // Stop all motion;
+            leftDriveF.setPower(0);
+            rightDriveF.setPower(0);
+            leftDriveB.setPower(0);
+            rightDriveB.setPower(0);
+
+            // Turn off RUN_TO_POSITION
+            leftDriveF.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            rightDriveF.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            leftDriveB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            rightDriveB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            sleep(200);   //  pause after each move.
+        }
+    }
+
     ///Function Library /////
-    private void DropPixel()
-    {
+    private void DropPixel() {
         //TODO: Write code that will place currently held pixels onto the backboard.
     }
-    private void PickUpPixels()
-    {
+
+    private void PickUpPixels() {
         //TODO: Write code that will pick up two white pixels from the stack into the robots posession.
     }
-    private void initTfod() {
-
-        // Create the TensorFlow processor by using a builder.
-        tfod = new TfodProcessor.Builder()
-
-                // With the following lines commented out, the default TfodProcessor Builder
-                // will load the default model for the season. To define a custom model to load,
-                // choose one of the following:
-                //   Use setModelAssetName() if the custom TF Model is built in as an asset (AS only).
-                //   Use setModelFileName() if you have downloaded a custom team model to the Robot Controller.
-                //.setModelAssetName(TFOD_MODEL_ASSET)
-                //.setModelFileName(TFOD_MODEL_FILE)
-
-                // The following default settings are available to un-comment and edit as needed to
-                // set parameters for custom models.
-                //.setModelLabels(LABELS)
-                //.setIsModelTensorFlow2(true)
-                //.setIsModelQuantized(true)
-                //.setModelInputSize(300)
-                //.setModelAspectRatio(16.0 / 9.0)
-
-                .build();
-
-        // Create the vision portal by using a builder.
-        VisionPortal.Builder builder = new VisionPortal.Builder();
-
-        // Set the camera (webcam vs. built-in RC phone camera).
-        if (USE_WEBCAM) {
-            builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
-        } else {
-            builder.setCamera(BuiltinCameraDirection.BACK);
-        }
-
-        // Choose a camera resolution. Not all cameras support all resolutions.
-        builder.setCameraResolution(new Size(640, 480));
-
-        // Enable the RC preview (LiveView).  Set "false" to omit camera monitoring.
-        builder.enableLiveView(true);
-
-        // Set the stream format; MJPEG uses less bandwidth than default YUY2.
-        builder.setStreamFormat(VisionPortal.StreamFormat.YUY2);
-
-        // Choose whether or not LiveView stops if no processors are enabled.
-        // If set "true", monitor shows solid orange screen if no processors enabled.
-        // If set "false", monitor shows camera view without annotations.
-        builder.setAutoStopLiveView(false);
-
-        // Set and enable the processor.
-        builder.addProcessor(tfod);
-
-        // Build the Vision Portal, using the above settings.
-        visionPortal = builder.build();
-
-        // Set confidence threshold for TFOD recognitions, at any time.
-        tfod.setMinResultConfidence(0.50f);
-
-        // Disable or re-enable the TFOD processor at any time.
-        //visionPortal.setProcessorEnabled(tfod, true);
-
-    }   // end initTfod()
-    private double telemetryTfod() {
-        double xCoordinate = 0.0;
-        List<Recognition> currentRecognitions = tfod.getRecognitions();
-        telemetry.addData("# Objects Detected", currentRecognitions.size());
-
-        // Step through the list of recognitions and display info for each one.
-        for (Recognition recognition : currentRecognitions) {
-            double x = (recognition.getLeft() + recognition.getRight()) / 2;
-            double y = (recognition.getTop() + recognition.getBottom()) / 2;
-
-            telemetry.addData("", " ");
-            telemetry.addData("Image", "%s (%.0f %% Conf.)", recognition.getLabel(), recognition.getConfidence() * 100);
-            telemetry.addData("- Position", "%.0f / %.0f", x, y);
-            telemetry.addData("- Size", "%.0f x %.0f", recognition.getWidth(), recognition.getHeight());
-            xCoordinate = x;
-        }   // end for() loop
-        return xCoordinate;
-    } //video function returns x cord of the detected prop
 }
-
