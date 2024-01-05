@@ -73,7 +73,7 @@ import java.util.List;
 
 @Autonomous
 
-public class AutonSpikeOnly extends LinearOpMode {
+public class AutonSpikeOnlyRed extends LinearOpMode {
     //Camera usage initializations//
     /*private static final boolean USE_WEBCAM = true;
     private TfodProcessor tfod;
@@ -88,7 +88,7 @@ public class AutonSpikeOnly extends LinearOpMode {
     private DcMotor rightDriveB = null;
     private Servo Wrist = null;
     private Servo CRPixelPusher = null;
-    private Servo Drone = null;
+    //private Servo Drone = null; not needed in auto
     private Servo SpikePixel = null;
     private DcMotor Intake = null;
     private ElapsedTime runtime = new ElapsedTime();
@@ -100,8 +100,40 @@ public class AutonSpikeOnly extends LinearOpMode {
             (WHEEL_DIAMETER_INCHES * 3.1415);
     static final double DRIVE_SPEED = 0.4;
 
+    //VIDEO ANALYSIS INITIALIZATION //
+    /////////////////////////////////////////////////////////////
+    private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
+
+    // TFOD_MODEL_ASSET points to a model file stored in the project Asset location,
+    // this is only used for Android Studio when using models in Assets.
+    private static final String TFOD_MODEL_ASSET = "model_RedTeamProp.tflite";
+    // TFOD_MODEL_FILE points to a model file stored onboard the Robot Controller's storage,
+    // this is used when uploading models directly to the RC using the model upload interface.
+    private static final String TFOD_MODEL_FILE = "/sdcard/FIRST/tflitemodels/model_RedTeamProp.tflite";
+    // Define the labels recognized in the model for TFOD (must be in training order!)
+    private static final String[] LABELS = {
+            "RedProp",
+    };
+
+    /**
+     * The variable to store our instance of the TensorFlow Object Detection processor.
+     */
+    private TfodProcessor tfod;
+
+    /**
+     * The variable to store our instance of the vision portal.
+     */
+    private VisionPortal visionPortal;
+
     @Override
     public void runOpMode() {
+
+        initTfod(); //TODO: make this return x coord of the object
+
+        // Wait for the DS start button to be touched.
+        telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
+        telemetry.addData(">", "Touch Play to start OpMode");
+        telemetry.update();
 
         Intake = hardwareMap.get(DcMotor.class, "Intake");
         //
@@ -135,34 +167,40 @@ public class AutonSpikeOnly extends LinearOpMode {
         Intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         Intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         Wrist = hardwareMap.get(Servo.class, "JointServo");
-        Drone = hardwareMap.get(Servo.class, "ClawServo");
+
 
 
         // Wait for the game to start (driver presses PLAY)
 
         waitForStart();
-        //Camera command that stores XCoordinate of the team prop
+        telemetryTfod(); //TODO: change function to return the x coordinate and what side spikes on
+                         //Should probably do this BEFORE the waitforstart and give a telemetry update.
         sleep(500);
         double xCoordinateValue = 0;
+        //TODO: this needs to change to being defined as the return value of telemetryTfod
 
         //write function that lets strafing right x inches happen and put it here.
         encoderDrive(DRIVE_SPEED, 25, 25, 3.0);
 
         if (xCoordinateValue != 0.0 && xCoordinateValue < 200) //good experimental val
         {
-            //TODO: write code to drive to middle spike
+            //TODO: write code to drive to left spike, drop spike pix, then left board
+            //blah blah blah at spike mark
+            SpikePixel.setPosition(0.5);
+            //blah blah blah at the board
+            //1. turn left to face board; 2.forward 36 inches; 3. strafe left 18 inches; 4. back up 10 inches?
 
         }
         if (xCoordinateValue > 200)//good experimental val
         {
-            //TODO: write code to drive to right spike
+            //TODO: write code to drive to middle spike then center board
 
         } else
         {
-            //TODO: write code to drive to left spike
+            //TODO: write code to drive to right spike then right board
 
         }
-        SpikePixel.setPosition(0.5); //write in the value that lets the auton pixel get dropped
+        //write in the value that lets the auton pixel get dropped. 0.5 is a guess.
 
         sleep(1000);
         //TODO: Write code that drives robot to the CORRECT STACK on the board and place yellow
@@ -242,30 +280,37 @@ public class AutonSpikeOnly extends LinearOpMode {
             sleep(200);   //  pause after each move.
         }
     }
-    public void EncoderDriveStrafe(double speed, double InchesStrafe, double direction, double timeoutS) {
-        int StrafeFL;
-        int StrafeBL;
-        int StrafeFR;
-        int StrafeBR;
+    public void encoderDriveStrafe(double speed, double InchesStrafe, double direction, double timeoutS) {
+        int StrafeFL = 0;
+        int StrafeBL = 0;
+        int StrafeFR = 0;
+        int StrafeBR = 0;
 
         // Ensure that the OpMode is still active
-        if (opModeIsActive()) {
+        if (opModeIsActive())
+        {
 
             // Determine new target position, and pass to motor controller
-            if(direction = 0) { //strafing right
-            StrafeFL = leftDriveF.getCurrentPosition() + (int) (InchesStrafe * COUNTS_PER_INCH);
-            StrafeBL = leftDriveB.getCurrentPosition() + (int) (InchesStrafe * COUNTS_PER_INCH);
-            StrafeFR = rightDriveF.getCurrentPosition() + (int) (InchesStrafe * COUNTS_PER_INCH);
-            StrafeBR = rightDriveF.getCurrentPosition() + (int) (InchesStrafe * COUNTS_PER_INCH); }
-            if(direction = 1)
-            { //strafing left
-
+            if(direction == 0)
+            { //strafing right
+                StrafeFL = leftDriveF.getCurrentPosition() + (int) (InchesStrafe * COUNTS_PER_INCH);
+                StrafeBL = leftDriveB.getCurrentPosition() - (int) (InchesStrafe * COUNTS_PER_INCH);
+                StrafeFR = rightDriveF.getCurrentPosition() - (int) (InchesStrafe * COUNTS_PER_INCH);
+                StrafeBR = rightDriveF.getCurrentPosition() + (int) (InchesStrafe * COUNTS_PER_INCH);
             }
 
-            leftDriveF.setTargetPosition(newLeftTarget);
-            rightDriveF.setTargetPosition(newRightTarget);
-            leftDriveB.setTargetPosition(newLeftTarget);
-            rightDriveB.setTargetPosition(newRightTarget);
+            if(direction == 1)
+            { //strafing left
+                StrafeFL = leftDriveF.getCurrentPosition() - (int) (InchesStrafe * COUNTS_PER_INCH);
+                StrafeBL = leftDriveB.getCurrentPosition() + (int) (InchesStrafe * COUNTS_PER_INCH);
+                StrafeFR = rightDriveF.getCurrentPosition() + (int) (InchesStrafe * COUNTS_PER_INCH);
+                StrafeBR = rightDriveF.getCurrentPosition() - (int) (InchesStrafe * COUNTS_PER_INCH);
+            }
+
+            leftDriveF.setTargetPosition(StrafeFL);
+            rightDriveF.setTargetPosition(StrafeBL);
+            leftDriveB.setTargetPosition(StrafeFR);
+            rightDriveB.setTargetPosition(StrafeBR);
 
             // Turn On RUN_TO_POSITION
             leftDriveF.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -320,4 +365,86 @@ public class AutonSpikeOnly extends LinearOpMode {
     private void PickUpPixels() {
         //TODO: Write code that will pick up two white pixels from the stack into the robots posession.
     }
+    //FUNCTIONS FOR THE VIDEO ANALYSIS BELOW:
+    private void initTfod() {
+
+        // Create the TensorFlow processor by using a builder.
+        tfod = new TfodProcessor.Builder()
+
+                // With the following lines commented out, the default TfodProcessor Builder
+                // will load the default model for the season. To define a custom model to load,
+                // choose one of the following:
+                //   Use setModelAssetName() if the custom TF Model is built in as an asset (AS only).
+                //   Use setModelFileName() if you have downloaded a custom team model to the Robot Controller.
+                .setModelAssetName(TFOD_MODEL_ASSET)
+                //.setModelFileName(TFOD_MODEL_FILE)
+
+                // The following default settings are available to un-comment and edit as needed to
+                // set parameters for custom models.
+                .setModelLabels(LABELS)
+                //.setIsModelTensorFlow2(true)
+                //.setIsModelQuantized(true)
+                //.setModelInputSize(300)
+                //.setModelAspectRatio(16.0 / 9.0)
+
+                .build();
+
+        // Create the vision portal by using a builder.
+        VisionPortal.Builder builder = new VisionPortal.Builder();
+
+        // Set the camera (webcam vs. built-in RC phone camera).
+        if (USE_WEBCAM) {
+            builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
+        } else {
+            builder.setCamera(BuiltinCameraDirection.BACK);
+        }
+
+        // Choose a camera resolution. Not all cameras support all resolutions.
+        builder.setCameraResolution(new Size(640, 480));
+
+        // Enable the RC preview (LiveView).  Set "false" to omit camera monitoring.
+        builder.enableLiveView(true);
+
+        // Set the stream format; MJPEG uses less bandwidth than default YUY2.
+        builder.setStreamFormat(VisionPortal.StreamFormat.YUY2);
+
+        // Choose whether or not LiveView stops if no processors are enabled.
+        // If set "true", monitor shows solid orange screen if no processors enabled.
+        // If set "false", monitor shows camera view without annotations.
+        builder.setAutoStopLiveView(false);
+
+        // Set and enable the processor.
+        builder.addProcessor(tfod);
+
+        // Build the Vision Portal, using the above settings.
+        visionPortal = builder.build();
+
+        // Set confidence threshold for TFOD recognitions, at any time.
+        tfod.setMinResultConfidence(0.50f);
+
+        // Disable or re-enable the TFOD processor at any time.
+        //visionPortal.setProcessorEnabled(tfod, true);
+
+    }   // end method initTfod()
+
+    /**
+     * Add telemetry about TensorFlow Object Detection (TFOD) recognitions.
+     */
+    private void telemetryTfod() {
+
+        List<Recognition> currentRecognitions = tfod.getRecognitions();
+        telemetry.addData("# Objects Detected", currentRecognitions.size());
+
+        // Step through the list of recognitions and display info for each one.
+        for (Recognition recognition : currentRecognitions) {
+            double x = (recognition.getLeft() + recognition.getRight()) / 2 ;
+            double y = (recognition.getTop()  + recognition.getBottom()) / 2 ;
+
+            telemetry.addData(""," ");
+            telemetry.addData("Image", "%s (%.0f %% Conf.)", recognition.getLabel(), recognition.getConfidence() * 100);
+            telemetry.addData("- Position", "%.0f / %.0f", x, y);
+            telemetry.addData("- Size", "%.0f x %.0f", recognition.getWidth(), recognition.getHeight());
+        }   // end for() loop
+
+    }   // end method telemetryTfod()
 }
