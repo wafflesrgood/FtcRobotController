@@ -169,36 +169,55 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
         Wrist = hardwareMap.get(Servo.class, "JointServo");
 
 
-
+        double xCoordinateValue = telemetryTfod();
+        double Heading = 0;
+        if (xCoordinateValue !=0 && xCoordinateValue < 200)
+        {
+            Heading = 1; //This represents LEFT
+        }
+        if(xCoordinateValue != 0 && xCoordinateValue > 250)
+        {
+            Heading = 2; //This represents CENTER
+        }
+        else
+        {
+            Heading = 3; //DEFAULT HEADING IS RIGHT
+        }
         // Wait for the game to start (driver presses PLAY)
-
         waitForStart();
-        telemetryTfod(); //TODO: change function to return the x coordinate and what side spikes on
+         //TODO: change function to return the x coordinate and what side spikes on
                          //Should probably do this BEFORE the waitforstart and give a telemetry update.
         sleep(500);
-        double xCoordinateValue = 0;
+
+
         //TODO: this needs to change to being defined as the return value of telemetryTfod
 
         //write function that lets strafing right x inches happen and put it here.
         encoderDrive(DRIVE_SPEED, 25, 25, 3.0);
 
-        if (xCoordinateValue != 0.0 && xCoordinateValue < 200) //good experimental val
+        if (Heading == 1) //good experimental val
         {
-            //TODO: write code to drive to left spike, drop spike pix, then left board
+            //TODO: write code to drive to left spike, drop spike pix
             //blah blah blah at spike mark
+            encoderDriveStrafe(DRIVE_SPEED,36, 0, 0.5); //0 is right 1 is left
+            encoderDrive(DRIVE_SPEED, 12, 12, 0.5);
             SpikePixel.setPosition(0.5);
             //blah blah blah at the board
             //1. turn left to face board; 2.forward 36 inches; 3. strafe left 18 inches; 4. back up 10 inches?
 
         }
-        if (xCoordinateValue > 200)//good experimental val
+        if (Heading == 2)//good experimental val
         {
-            //TODO: write code to drive to middle spike then center board
-
-        } else
+            //TODO: write code to drive to middle spike
+            encoderDriveStrafe(DRIVE_SPEED,50, 0, 0.5); //0 is right 1 is left
+            SpikePixel.setPosition(0.5);
+        }
+        else //if(Heading == 3) We will use right as the default statement
         {
-            //TODO: write code to drive to right spike then right board
-
+            //TODO: write code to drive to right spike
+            encoderDriveStrafe(DRIVE_SPEED,36, 0, 0.5); //0 is right 1 is left
+            encoderDrive(DRIVE_SPEED, -12, -12, 0.5);
+            SpikePixel.setPosition(0.5);
         }
         //write in the value that lets the auton pixel get dropped. 0.5 is a guess.
 
@@ -429,8 +448,11 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
 
     /**
      * Add telemetry about TensorFlow Object Detection (TFOD) recognitions.
+     *
+     * @return
      */
-    private void telemetryTfod() {
+    private double telemetryTfod() {
+        double ReturnX = 0;
 
         List<Recognition> currentRecognitions = tfod.getRecognitions();
         telemetry.addData("# Objects Detected", currentRecognitions.size());
@@ -444,7 +466,7 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
             telemetry.addData("Image", "%s (%.0f %% Conf.)", recognition.getLabel(), recognition.getConfidence() * 100);
             telemetry.addData("- Position", "%.0f / %.0f", x, y);
             telemetry.addData("- Size", "%.0f x %.0f", recognition.getWidth(), recognition.getHeight());
-        }   // end for() loop
-
+            ReturnX = x;
+        }  return ReturnX; // This used to be a for loop, but now I make it return the x value after one recognition. Risky? Maybe..
     }   // end method telemetryTfod()
 }

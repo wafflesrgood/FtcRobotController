@@ -31,7 +31,6 @@ package org.firstinspires.ftc.teamcode;
 
 import android.util.Size;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -154,7 +153,7 @@ public class AutoTensorFlowComplicatedSample extends LinearOpMode {
         // Enable the RC preview (LiveView).  Set "false" to omit camera monitoring.
         builder.enableLiveView(true);
 
-        // Set the stream format; MJPEG uses less bandwidth than default YUY2.
+        // Set the stream format; MJPEG uses less bandwidth than default YUY2.2
         builder.setStreamFormat(VisionPortal.StreamFormat.YUY2);
 
         // Choose whether or not LiveView stops if no processors are enabled.
