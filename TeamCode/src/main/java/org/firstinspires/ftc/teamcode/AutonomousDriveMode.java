@@ -80,17 +80,19 @@ public class AutonomousDriveMode extends LinearOpMode {
     private VisionPortal visionPortal;
     ///////////////////////////////
     /* Declare OpMode members. */
+
     private DcMotor leftDriveF   = null;
     private DcMotor leftDriveB   = null;
     private DcMotor rightDriveF  = null;
     private DcMotor rightDriveB  = null;
+
     private DcMotor ArmMotor = null;
     private Servo ClawServo = null;
     private Servo JointServo = null;
-    private DcMotor Intake = null;
+    private DcMotor intake = null;
     private ElapsedTime     runtime = new ElapsedTime();
 
-    static final double     COUNTS_PER_MOTOR_REV    = 537.7 ;    // Gobilda Planetary Motor
+    static final double     COUNTS_PER_MOTOR_REV    = 537.7 ;    // GoBilda Planetary Motor
     static final double     DRIVE_GEAR_REDUCTION    = 1.0 ;     // No External Gearing.
     static final double     WHEEL_DIAMETER_INCHES   = 3.77953 ;     // For figuring circumference
     static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
@@ -105,13 +107,12 @@ public class AutonomousDriveMode extends LinearOpMode {
         telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
         telemetry.addData(">", "Touch Play to start OpMode");
         //initialize intake motor
-        Intake = hardwareMap.get(DcMotor.class, "Intake");
-        //
+        intake = hardwareMap.get(DcMotor.class, "Intake");
         // Initialize the drive system variables.
-        //Front
+        // Front
         leftDriveF  = hardwareMap.get(DcMotor.class, "frontLeft");
         rightDriveF = hardwareMap.get(DcMotor.class, "frontRight");
-        //Back
+        // Back
         leftDriveB  = hardwareMap.get(DcMotor.class, "backLeft");
         rightDriveB = hardwareMap.get(DcMotor.class, "backRight");
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
@@ -139,35 +140,70 @@ public class AutonomousDriveMode extends LinearOpMode {
         JointServo = hardwareMap.get(Servo.class, "JointServo");
         ClawServo = hardwareMap.get(Servo.class, "ClawServo");
 
+        // Send telemetry message to indicate successful Encoder reset
+
+        telemetry.addData("Arm Position", "%7d :%7d", ArmMotor.getCurrentPosition());
+        telemetry.update();
 
         // Wait for the game to start (driver presses PLAY)
-
+        ArmMotor.setTargetPosition(5);
+        ArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        ArmMotor.setPower(0.4);
+        ClawServo.setPosition(0.75);
+        JointServo.setPosition(0.78);
         waitForStart();
-        //Camera command that stores XCoordinate of the team prop
+        //Camera command that stores XCoordinate of pixel
 
         double xCoordinateValue = telemetryTfod();
         sleep(500);
         visionPortal.close();
         //
 
-
+        //write commands that will grab and lift pixel
+        ClawServo.setPosition(0.5); //Grips pixel
+        JointServo.setPosition(0.9); //prepares wrist to lift
+        //
+        //
+        //
+        //
+        //
+        //move forward 25 inches
         encoderDrive(DRIVE_SPEED,  25,  25, 3.0);
         ////
 
         if (xCoordinateValue != 0.0 && xCoordinateValue < 200) //good experimental val
         {
             //drive to middle spike
+            //move forward 8 more inches
+            encoderDrive(DRIVE_SPEED,  8,  8, 2.0);
+            //drop the pixel gently
+            DropPixel();
+            //rotate to face back towards start to grab pixel!
 
         }
         if(xCoordinateValue > 200)//good experimental val
         {
             //drive to right spike
-
+            //
+            //rotate 90 degrees to the right
+            encoderDrive(TURN_SPEED,   16, -16, 2.0);
+            //move forward 10 inches
+            encoderDrive(DRIVE_SPEED,  8,  8, 2.0);
+            //drop the pixel
+            DropPixel();
+            //rotate to face back towards start to grab pixel!
         }
         else
         {
             //drive to left spike
-
+            //
+            //rotate 90 degrees to the left
+            encoderDrive(TURN_SPEED,   -16, 16, 2.0);
+            //move forward 10 inches
+            encoderDrive(DRIVE_SPEED,  7,  7, 2.0);
+            //drop the pixel
+            DropPixel();
+            //rotate to face back towards start to grab pixel!
         }
 
         sleep(1000);
@@ -180,12 +216,10 @@ public class AutonomousDriveMode extends LinearOpMode {
         sleep(1000);  // pause to display final telemetry message.
     }
 
-    //The below function is slightly modified from FTC's own sample encoder drive for a tank drive
-    //This means its only good for rotation and forward/back drive. For strafing, use the new
-    //functions below it named encoderStrafeRight or EncoderStrafeLeft
     public void encoderDrive(double speed,
                              double leftInches, double rightInches,
-                             double timeoutS) {
+                             double timeoutS)
+    {
         int newLeftTarget;
         int newRightTarget;
 
@@ -221,7 +255,7 @@ public class AutonomousDriveMode extends LinearOpMode {
             // onto the next step, use (isBusy() || isBusy()) in the loop test.
             while (opModeIsActive() &&
                    (runtime.seconds() < timeoutS) &&
-                   (leftDriveF.isBusy() || rightDriveF.isBusy() ||leftDriveB.isBusy() ||rightDriveB.isBusy()))
+                   (leftDriveF.isBusy() || rightDriveF.isBusy() || leftDriveB.isBusy() || rightDriveB.isBusy()))
             {
                 //imagine i put a telemetry statement here
                 telemetry.addData("Top Left Motor Position", "%7d :%7d", leftDriveF.getCurrentPosition());
@@ -242,17 +276,29 @@ public class AutonomousDriveMode extends LinearOpMode {
             leftDriveB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             rightDriveB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-            sleep(200);   //  pause after each move.
+            sleep(200);   // optional pause after each move.
         }
     }
-    ///Function Library /////
+
+    public void strafeDrive(
+            double speed)
+    {
+
+    }
+
+    // Optical Detection Function Library
     private void DropPixel()
     {
-        //TODO: Write code that will place currently held pixels onto the backboard.
-    }
-    private void PickUpPixels()
-    {
-        //TODO: Write code that will pick up two white pixels from the stack into the robots posession.
+        JointServo.setPosition(0.78); //wrist down
+        ClawServo.setPosition(0.75); //let go of pixel
+        //Intake Spit Out Mode (SLOW!)
+        intake.setPower(-0.25);
+        //Drive back a few inches to spit out
+        encoderDrive(DRIVE_SPEED,  -8,  -8, 3.0);
+        intake.setPower(0.0); //        turn off intake mill
+        ClawServo.setPosition(0.5); //  grip so claw doesn't hit side when wrist moves next
+        JointServo.setPosition(0.9); // wrist back up
+
     }
     private void initTfod() {
 
@@ -262,8 +308,8 @@ public class AutonomousDriveMode extends LinearOpMode {
                 // With the following lines commented out, the default TfodProcessor Builder
                 // will load the default model for the season. To define a custom model to load,
                 // choose one of the following:
-                //   Use setModelAssetName() if the custom TF Model is built in as an asset (AS only).
-                //   Use setModelFileName() if you have downloaded a custom team model to the Robot Controller.
+                // Use setModelAssetName() if the custom TF Model is built in as an asset (AS only).
+                // Use setModelFileName() if you have downloaded a custom team model to the Robot Controller.
                 //.setModelAssetName(TFOD_MODEL_ASSET)
                 //.setModelFileName(TFOD_MODEL_FILE)
 
@@ -313,7 +359,7 @@ public class AutonomousDriveMode extends LinearOpMode {
         // Disable or re-enable the TFOD processor at any time.
         //visionPortal.setProcessorEnabled(tfod, true);
 
-    }   // end initTfod()
+    }   // end method initTfod()
     private double telemetryTfod() {
         double xCoordinate = 0.0;
         List<Recognition> currentRecognitions = tfod.getRecognitions();
@@ -331,6 +377,6 @@ public class AutonomousDriveMode extends LinearOpMode {
             xCoordinate = x;
         }   // end for() loop
         return xCoordinate;
-    } //video function returns x cord of the detected prop
+    } //video function returns x cord
 }
 
