@@ -75,12 +75,12 @@ import java.util.List;
 
 public class AutonSpikeOnlyRed extends LinearOpMode {
     //Camera usage initializations//
-    /*private static final boolean USE_WEBCAM = true;
+    private static final boolean USE_WEBCAM = true;
     private TfodProcessor tfod;
     private VisionPortal visionPortal;
     ///////////////////////////////
 
-     */
+
     /* Declare OpMode members. */
     private DcMotor leftDriveF = null;
     private DcMotor leftDriveB = null;
@@ -90,7 +90,7 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
     private Servo CRPixelPusher = null;
     //private Servo Drone = null; not needed in auto
     private Servo SpikePixel = null;
-    private DcMotor Intake = null;
+
     private ElapsedTime runtime = new ElapsedTime();
 
     static final double COUNTS_PER_MOTOR_REV = 537.7;    // Gobilda Planetary Motor
@@ -102,7 +102,7 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
 
     //VIDEO ANALYSIS INITIALIZATION //
     /////////////////////////////////////////////////////////////
-    private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
+     // true for webcam, false for phone camera
 
     // TFOD_MODEL_ASSET points to a model file stored in the project Asset location,
     // this is only used for Android Studio when using models in Assets.
@@ -118,24 +118,23 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
     /**
      * The variable to store our instance of the TensorFlow Object Detection processor.
      */
-    private TfodProcessor tfod;
+
 
     /**
      * The variable to store our instance of the vision portal.
      */
-    private VisionPortal visionPortal;
+
 
     @Override
     public void runOpMode() {
 
-        initTfod(); //TODO: make this return x coord of the object
+        initTfod();
 
         // Wait for the DS start button to be touched.
         telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
         telemetry.addData(">", "Touch Play to start OpMode");
         telemetry.update();
 
-        Intake = hardwareMap.get(DcMotor.class, "Intake");
         //
         // Initialize the drive system variables.
         //Front
@@ -144,6 +143,7 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
         //Back
         leftDriveB = hardwareMap.get(DcMotor.class, "backLeft");
         rightDriveB = hardwareMap.get(DcMotor.class, "backRight");
+        SpikePixel = hardwareMap.get(Servo.class, "AutonomousServo");
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
@@ -163,19 +163,16 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
         rightDriveB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         /////////////////////////////////////////////////////////
         //Arm Motor Initialization////
-        Intake = hardwareMap.get(DcMotor.class, "ArmMotor");
-        Intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        Intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        Wrist = hardwareMap.get(Servo.class, "JointServo");
 
-
+        // Wait for the game to start (driver presses PLAY)
+        waitForStart();
         double xCoordinateValue = telemetryTfod();
         double Heading = 0;
         if (xCoordinateValue !=0 && xCoordinateValue < 200)
         {
             Heading = 1; //This represents LEFT
         }
-        if(xCoordinateValue != 0 && xCoordinateValue > 250)
+        if(xCoordinateValue != 0 && xCoordinateValue > 225)
         {
             Heading = 2; //This represents CENTER
         }
@@ -183,25 +180,19 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
         {
             Heading = 3; //DEFAULT HEADING IS RIGHT
         }
-        // Wait for the game to start (driver presses PLAY)
-        waitForStart();
-         //TODO: change function to return the x coordinate and what side spikes on
-                         //Should probably do this BEFORE the waitforstart and give a telemetry update.
-        sleep(500);
-
-
-        //TODO: this needs to change to being defined as the return value of telemetryTfod
+        telemetry.addData("Current Heading", Heading);
+        telemetry.update();
+        sleep(2000);
 
         //write function that lets strafing right x inches happen and put it here.
-        encoderDrive(DRIVE_SPEED, 25, 25, 3.0);
 
         if (Heading == 1) //good experimental val
         {
             //TODO: write code to drive to left spike, drop spike pix
             //blah blah blah at spike mark
-            encoderDriveStrafe(DRIVE_SPEED,36, 0, 0.5); //0 is right 1 is left
-            encoderDrive(DRIVE_SPEED, 12, 12, 0.5);
-            SpikePixel.setPosition(0.5);
+            encoderDriveStrafe(DRIVE_SPEED,16, 0, 0.5); //0 is right 1 is left
+            encoderDrive(DRIVE_SPEED, 12, 12, 1);
+            SpikePixel.setPosition(-0.6);
             //blah blah blah at the board
             //1. turn left to face board; 2.forward 36 inches; 3. strafe left 18 inches; 4. back up 10 inches?
 
@@ -209,22 +200,21 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
         if (Heading == 2)//good experimental val
         {
             //TODO: write code to drive to middle spike
-            encoderDriveStrafe(DRIVE_SPEED,50, 0, 0.5); //0 is right 1 is left
+            encoderDriveStrafe(DRIVE_SPEED,36, 0, 1); //0 is right 1 is left
             SpikePixel.setPosition(0.5);
         }
         else //if(Heading == 3) We will use right as the default statement
         {
             //TODO: write code to drive to right spike
             encoderDriveStrafe(DRIVE_SPEED,36, 0, 0.5); //0 is right 1 is left
-            encoderDrive(DRIVE_SPEED, -12, -12, 0.5);
-            SpikePixel.setPosition(0.5);
+            encoderDrive(DRIVE_SPEED, -12, -12, 1);
+            SpikePixel.setPosition(-0.6);
         }
         //write in the value that lets the auton pixel get dropped. 0.5 is a guess.
 
         sleep(1000);
-        //TODO: Write code that drives robot to the CORRECT STACK on the board and place yellow
-        //TODO: Write code that drives robot to white stack and run function to pick up
-        //TODO: write code that drives robot to board and place two pixels
+        //TODO: Write another opmode exactly like this but for BLUE prop
+        //TODO: Write another set of opmodes like this but that also continue to go drop pixel on board
 
         // encoderDrive(DRIVE_SPEED,  48,  48, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
         // encoderDrive(TURN_SPEED,   12, -12, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
@@ -315,7 +305,7 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
                 StrafeFL = leftDriveF.getCurrentPosition() + (int) (InchesStrafe * COUNTS_PER_INCH);
                 StrafeBL = leftDriveB.getCurrentPosition() - (int) (InchesStrafe * COUNTS_PER_INCH);
                 StrafeFR = rightDriveF.getCurrentPosition() - (int) (InchesStrafe * COUNTS_PER_INCH);
-                StrafeBR = rightDriveF.getCurrentPosition() + (int) (InchesStrafe * COUNTS_PER_INCH);
+                StrafeBR = rightDriveB.getCurrentPosition() + (int) (InchesStrafe * COUNTS_PER_INCH);
             }
 
             if(direction == 1)
@@ -323,7 +313,7 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
                 StrafeFL = leftDriveF.getCurrentPosition() - (int) (InchesStrafe * COUNTS_PER_INCH);
                 StrafeBL = leftDriveB.getCurrentPosition() + (int) (InchesStrafe * COUNTS_PER_INCH);
                 StrafeFR = rightDriveF.getCurrentPosition() + (int) (InchesStrafe * COUNTS_PER_INCH);
-                StrafeBR = rightDriveF.getCurrentPosition() - (int) (InchesStrafe * COUNTS_PER_INCH);
+                StrafeBR = rightDriveB.getCurrentPosition() - (int) (InchesStrafe * COUNTS_PER_INCH);
             }
 
             leftDriveF.setTargetPosition(StrafeFL);

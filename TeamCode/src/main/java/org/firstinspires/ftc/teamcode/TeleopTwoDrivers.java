@@ -45,7 +45,7 @@ public class TeleopTwoDrivers extends LinearOpMode {
         HangerRotater = hardwareMap.get(DcMotor.class, "HangerRotater");
         //servos
         RightIntakeServo = hardwareMap.get(CRServo.class, "RightIntakeServo");
-        AutonomousServo = hardwareMap.get(Servo.class, "AutonomousServo");
+        //AutonomousServo = hardwareMap.get(Servo.class, "AutonomousServo");
         ViperSlideServo = hardwareMap.get(Servo.class, "ViperSlideServo");
         WristServo = hardwareMap.get(Servo.class, "WristServo");
 
@@ -61,13 +61,17 @@ public class TeleopTwoDrivers extends LinearOpMode {
         waitForStart();
         while (opModeIsActive()) {
             ////CODE FOR DRIVETRAIN ///
-            double drive = -gamepad1.left_stick_x;
-            double strafe = gamepad1.left_stick_y;
-            double rotate = gamepad1.right_stick_x;
-            double frontLeftPower = Range.clip(drive + strafe + rotate, -1.0, 1.0);
-            double frontRightPower = Range.clip(drive - strafe - rotate, -1.0, 1.0);
-            double backLeftPower = Range.clip(drive - strafe + rotate, -1.0, 1.0);
-            double backRightPower = Range.clip(drive + strafe - rotate, -1.0, 1.0);
+            double y = -gamepad1.left_stick_y;
+            double x = gamepad1.left_stick_x;
+            double rx = gamepad1.right_stick_x;
+            double frontLeftPower  = y - x + rx;
+            //Range.clip(drive + strafe + rotate, -1.0, 1.0);
+            double frontRightPower =  y - x - rx;
+            //Range.clip(drive - strafe - rotate, -1.0, 1.0);
+            double backLeftPower = y + x + rx;
+            //Range.clip(drive - strafe + rotate, -1.0, 1.0);
+            double backRightPower = y + x - rx;
+            //Range.clip(drive + strafe - rotate, -1.0, 1.0);
             FLWheel.setPower(multiplier * frontLeftPower);
             FRWheel.setPower(multiplier * frontRightPower);
             BLWheel.setPower(multiplier * backLeftPower);
@@ -100,15 +104,15 @@ public class TeleopTwoDrivers extends LinearOpMode {
             //Servo Wrist Controls
             if(gamepad1.a)
             {
-                WristServo.setPosition(0); //og position
+               // WristServo.setPosition(0); //og position
             }
             if (gamepad1.b)
             {
-                WristServo.setPosition(0.5); //position up for possesing the pixels
+                //WristServo.setPosition(0.5); //position up for possesing the pixels
             }
             if(gamepad1.x)
             {
-                WristServo.setPosition(1); //position on the wat down for placing the pixels
+               // WristServo.setPosition(1); //position on the wat down for placing the pixels
             }
 
             ///////////////////////////////////
@@ -116,15 +120,15 @@ public class TeleopTwoDrivers extends LinearOpMode {
             //Control of the extension of the viperslide
             if(gamepad2.right_bumper)
             {
-                ViperSlide.setPower(0.5);
+                //ViperSlide.setPower(0.5);
             }
             if(gamepad2.left_bumper)
             {
-                ViperSlide.setPower(-0.5);
+                //ViperSlide.setPower(-0.5);
             }
             if(gamepad2.dpad_right)
             {
-                ViperSlide.setPower(0);
+                //ViperSlide.setPower(0);
             }
 
             ///////////////////////////////////////
@@ -132,35 +136,34 @@ public class TeleopTwoDrivers extends LinearOpMode {
             //Control of the Viperslide Servo
             if(gamepad2.dpad_down)
             {
-                ViperSlideServo.setPosition(0);//home position
+                //ViperSlideServo.setPosition(0);//home position
             }
             if(gamepad2.dpad_left)
             {
-                ViperSlideServo.setPosition(0.5); //start to tilt up
+                //ViperSlideServo.setPosition(0.5); //start to tilt up
             }
             if(gamepad2.dpad_up)
             {
-                ViperSlideServo.setPosition(1);//scoring position
+                //ViperSlideServo.setPosition(1);//scoring position
             }
             /////////////////
             //control of the linear actuator
-
             LinearActuator.setPower(gamepad2.right_stick_y);
             //Control of the Linear Actuator's Turner
             HangerRotater.setPower(gamepad2.left_stick_y);
             //direction of the wheel on the box
             if(gamepad2.a)
             {
-                Roller.setPower(1);
+                //Roller.setPower(1);
             }
             if(gamepad2.b)
             {
-                Roller.setPower(-1);
+                //Roller.setPower(-1);
             }
             //Drone Launch! (Gamepad2)
             if (gamepad1.x)
             {
-                Drone.setPosition(-0.5);
+                //Drone.setPosition(-0.5);
             }
         }
     }

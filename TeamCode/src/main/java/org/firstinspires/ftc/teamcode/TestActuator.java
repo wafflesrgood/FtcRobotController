@@ -11,14 +11,14 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 public class TestActuator extends LinearOpMode {
 
     private Servo LinearServo;
-    private DcMotor Linear;
+    private DcMotor Motor;
 
     public void runOpMode() throws InterruptedException {
 
 
         //Initialization of Intake motor and Drone servo
-        Linear = hardwareMap.get(DcMotor.class, "Linear");
-        LinearServo = hardwareMap.get(Servo.class, "LinearServo");
+        Motor = hardwareMap.get(DcMotor.class, "ViperRotator");
+
         //
 
 
@@ -26,7 +26,7 @@ public class TestActuator extends LinearOpMode {
         while (opModeIsActive())
         {
             // set servo to desired position
-            LinearServo.setPosition(2);
+            Motor.setPower(0.5 * gamepad1.right_stick_y);
             //start running the actuator!
 
 
