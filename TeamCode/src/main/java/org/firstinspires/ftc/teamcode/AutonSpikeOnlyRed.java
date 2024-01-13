@@ -72,7 +72,6 @@ import java.util.List;
  */
 
 @Autonomous
-
 public class AutonSpikeOnlyRed extends LinearOpMode {
     //Camera usage initializations//
     /*private static final boolean USE_WEBCAM = true;
@@ -171,11 +170,11 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
 
         double xCoordinateValue = telemetryTfod();
         double Heading = 0;
-        if (xCoordinateValue !=0 && xCoordinateValue < 200)
+        if (xCoordinateValue > 0 && xCoordinateValue < 200)
         {
             Heading = 1; //This represents LEFT
         }
-        if(xCoordinateValue != 0 && xCoordinateValue > 250)
+        if (xCoordinateValue > 250)
         {
             Heading = 2; //This represents CENTER
         }
@@ -206,13 +205,13 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
             //1. turn left to face board; 2.forward 36 inches; 3. strafe left 18 inches; 4. back up 10 inches?
 
         }
-        if (Heading == 2)//good experimental val
+        if (Heading == 2) //good experimental val
         {
             //TODO: write code to drive to middle spike
             encoderDriveStrafe(DRIVE_SPEED,50, 0, 0.5); //0 is right 1 is left
             SpikePixel.setPosition(0.5);
         }
-        else //if(Heading == 3) We will use right as the default statement
+        else //if (Heading == 3) We will use right as the default statement
         {
             //TODO: write code to drive to right spike
             encoderDriveStrafe(DRIVE_SPEED,36, 0, 0.5); //0 is right 1 is left
@@ -310,16 +309,16 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
         {
 
             // Determine new target position, and pass to motor controller
-            if(direction == 0)
-            { //strafing right
+            if (direction == 0)
+            { // strafing right
                 StrafeFL = leftDriveF.getCurrentPosition() + (int) (InchesStrafe * COUNTS_PER_INCH);
                 StrafeBL = leftDriveB.getCurrentPosition() - (int) (InchesStrafe * COUNTS_PER_INCH);
                 StrafeFR = rightDriveF.getCurrentPosition() - (int) (InchesStrafe * COUNTS_PER_INCH);
                 StrafeBR = rightDriveF.getCurrentPosition() + (int) (InchesStrafe * COUNTS_PER_INCH);
             }
 
-            if(direction == 1)
-            { //strafing left
+            if (direction == 1)
+            { // strafing left
                 StrafeFL = leftDriveF.getCurrentPosition() - (int) (InchesStrafe * COUNTS_PER_INCH);
                 StrafeBL = leftDriveB.getCurrentPosition() + (int) (InchesStrafe * COUNTS_PER_INCH);
                 StrafeFR = rightDriveF.getCurrentPosition() + (int) (InchesStrafe * COUNTS_PER_INCH);

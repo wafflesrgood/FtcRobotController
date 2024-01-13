@@ -20,6 +20,7 @@ public class ServoTester extends LinearOpMode {
 
         waitForStart();
 
+        // TODO: figure out why controlling one servo (moving one joystick) moves another servo as well
         while (opModeIsActive()) {
             position1 = servo.getPosition();
             position2 = vss.getPosition();
