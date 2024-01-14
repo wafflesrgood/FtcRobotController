@@ -6,31 +6,57 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp
 public class ServoTester extends LinearOpMode {
-    private Servo servo;
-    private Servo vss;
-
-    private static double position1;
-    private static double position2;
 
     @Override
     public void runOpMode() {
         // Initialize hardware
-        servo = hardwareMap.get(Servo.class, "WristServo");
-        vss = hardwareMap.get(Servo.class, "ViperSlideServo");
+        Servo c1 = hardwareMap.get(Servo.class, "Claw1");
+        Servo c2 = hardwareMap.get(Servo.class, "Claw2");
 
         waitForStart();
 
+        telemetry.addData("C1 Pos.", c1.getPosition());
+        telemetry.addData("C2 Pos.", c2.getPosition());
+        telemetry.update();
+
+        double position1 = 0;
+        double position2 = 0;
         // TODO: figure out why controlling one servo (moving one joystick) moves another servo as well
         while (opModeIsActive()) {
-            position1 = servo.getPosition();
-            position2 = vss.getPosition();
+            if (gamepad1.a) {
+                position1 += 0.005;
+            }
+            if (gamepad1.b) {
+                position1 -= 0.005;
+            }
+            if (gamepad1.x) {
+                position1 += 0.001;
+            }
+            if (gamepad1.y) {
+                position1 -= 0.001;
+            }
 
-            servo.setPosition(position1 - 0.1 * gamepad1.left_stick_y);
-            vss.setPosition(position2 - 0.1 * gamepad1.right_stick_y);
+            if (gamepad2.a) {
+                position2 += 0.005;
+            }
+            if (gamepad2.b) {
+                position2 -= 0.005;
+            }
+            if (gamepad2.x) {
+                position2 += 0.001;
+            }
+            if (gamepad2.y) {
+                position2 -= 0.001;
+            }
 
-            telemetry.addData("Position1", position1);
-            telemetry.addData("Position2", position2);
+            c1.setPosition(position1);
+            c2.setPosition(position2);
+
+            telemetry.addData("Pos 1", position1);
+            telemetry.addData("Pos 2", position2);
             telemetry.update();
+
+            sleep(25);
         }
     }
 }
