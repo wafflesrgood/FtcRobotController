@@ -307,7 +307,6 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
         // Ensure that the OpMode is still active
         if (opModeIsActive())
         {
-
             // Determine new target position, and pass to motor controller
             if (direction == 0)
             { // strafing right
