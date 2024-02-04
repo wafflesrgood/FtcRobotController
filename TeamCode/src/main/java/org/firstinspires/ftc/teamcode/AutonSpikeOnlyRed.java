@@ -29,6 +29,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import android.annotation.SuppressLint;
 import android.util.Size;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -77,8 +78,6 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
     /*private static final boolean USE_WEBCAM = true;
     private TfodProcessor tfod;
     private VisionPortal visionPortal;
-    ///////////////////////////////
-
      */
     /* Declare OpMode members. */
     private DcMotor leftDriveF = null;
@@ -108,6 +107,7 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
     private static final String TFOD_MODEL_ASSET = "model_RedTeamProp.tflite";
     // TFOD_MODEL_FILE points to a model file stored onboard the Robot Controller's storage,
     // this is used when uploading models directly to the RC using the model upload interface.
+
     private static final String TFOD_MODEL_FILE = "/sdcard/FIRST/tflitemodels/model_RedTeamProp.tflite";
     // Define the labels recognized in the model for TFOD (must be in training order!)
     private static final String[] LABELS = {
