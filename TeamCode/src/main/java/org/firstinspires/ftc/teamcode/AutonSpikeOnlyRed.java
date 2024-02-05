@@ -88,7 +88,6 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
     private Servo CRPixelPusher = null;
     //private Servo Drone = null; not needed in auto
     private Servo SpikePixel = null;
-    private DcMotor Intake = null;
     private ElapsedTime runtime = new ElapsedTime();
 
     static final double COUNTS_PER_MOTOR_REV = 537.7;    // Gobilda Planetary Motor
@@ -133,8 +132,6 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
         telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
         telemetry.addData(">", "Touch Play to start OpMode");
         telemetry.update();
-
-        Intake = hardwareMap.get(DcMotor.class, "Intake");
         //
         // Initialize the drive system variables.
         //Front
@@ -161,11 +158,6 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
         leftDriveB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightDriveB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         /////////////////////////////////////////////////////////
-        //Arm Motor Initialization////
-        Intake = hardwareMap.get(DcMotor.class, "ArmMotor");
-        Intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        Intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        Wrist = hardwareMap.get(Servo.class, "JointServo");
 
 
         double xCoordinateValue = telemetryTfod();

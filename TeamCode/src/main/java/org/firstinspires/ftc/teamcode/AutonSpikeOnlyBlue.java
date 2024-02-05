@@ -90,7 +90,6 @@ public class AutonSpikeOnlyBlue extends LinearOpMode {
     private Servo CRPixelPusher = null;
     //private Servo Drone = null; not needed in auto
     private Servo SpikePixel = null;
-    private DcMotor Intake = null;
     private ElapsedTime runtime = new ElapsedTime();
 
     static final double COUNTS_PER_MOTOR_REV = 537.7;    // Gobilda Planetary Motor
@@ -134,16 +133,13 @@ public class AutonSpikeOnlyBlue extends LinearOpMode {
         telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
         telemetry.addData(">", "Touch Play to start OpMode");
         telemetry.update();
-
-        Intake = hardwareMap.get(DcMotor.class, "Intake");
-        //
         // Initialize the drive system variables.
         //Front
-        leftDriveF = hardwareMap.get(DcMotor.class, "frontLeft");
-        rightDriveF = hardwareMap.get(DcMotor.class, "frontRight");
+        leftDriveF = hardwareMap.get(DcMotor.class, "frontleft");
+        rightDriveF = hardwareMap.get(DcMotor.class, "frontright");
         //Back
-        leftDriveB = hardwareMap.get(DcMotor.class, "backLeft");
-        rightDriveB = hardwareMap.get(DcMotor.class, "backRight");
+        leftDriveB = hardwareMap.get(DcMotor.class, "backleft");
+        rightDriveB = hardwareMap.get(DcMotor.class, "backright");
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
@@ -161,12 +157,6 @@ public class AutonSpikeOnlyBlue extends LinearOpMode {
         rightDriveF.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftDriveB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightDriveB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        /////////////////////////////////////////////////////////
-        //Arm Motor Initialization////
-        Intake = hardwareMap.get(DcMotor.class, "ArmMotor");
-        Intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        Intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        Wrist = hardwareMap.get(Servo.class, "JointServo");
 
 
         double xCoordinateValue = telemetryTfod();

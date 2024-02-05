@@ -5,7 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
+
+import java.util.Arrays;
 
 @TeleOp(name="TeleOp for February Competition")
 public class TeleOpFeb extends LinearOpMode {
@@ -30,6 +31,10 @@ public class TeleOpFeb extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        //                         drive, tray intakes, tray rotators, slides, main intakes
+        boolean activeSystems[] = {false, false,        false,         false,         false};
+        boolean allSystemsGo[] = {true, true, true, true, true};
+
         double drive;
         double strafe;
         double rotate;
@@ -39,10 +44,8 @@ public class TeleOpFeb extends LinearOpMode {
         double blPower;
         double brPower;
 
-        char last_button1 = '\0';
-        char last_button2 = '\0';
-
-        double mf = 0.25;
+        //            movement factor, tray rotator factor
+        double f[] = {0.25,            0.35                };
 
         DcMotor fl = null;
         DcMotor fr = null;
@@ -52,6 +55,9 @@ public class TeleOpFeb extends LinearOpMode {
         CRServo lis = null;
         CRServo ris = null;
 
+        CRServo mouth = null;
+        CRServo anus = null;
+
         CRServo ts1 = null;
         CRServo ts2 = null;
 
@@ -59,37 +65,69 @@ public class TeleOpFeb extends LinearOpMode {
         DcMotor vsm = null;
 
         try {
-            fl = hardwareMap.get(DcMotor.class, "FLWheel");
-            fr = hardwareMap.get(DcMotor.class, "FRWheel");
-            bl = hardwareMap.get(DcMotor.class, "BLWheel");
-            br = hardwareMap.get(DcMotor.class, "BRWheel");
-        } catch (IllegalArgumentException _) {
+            fl = hardwareMap.get(DcMotor.class, "frontleft");
+            fr = hardwareMap.get(DcMotor.class, "frontright");
+            bl = hardwareMap.get(DcMotor.class, "backleft");
+            br = hardwareMap.get(DcMotor.class, "backright");
+
+            activeSystems[0] = true;
+        } catch (IllegalArgumentException e) {
         }
 
         try {
-            lis = hardwareMap.get(CRServo.class, "LeftIntakeServo");
-            ris = hardwareMap.get(CRServo.class, "RightIntakeServo");
-        } catch (IllegalArgumentException _) {
+            mouth = hardwareMap.crservo.get("mouth");
+            anus = hardwareMap.crservo.get("anus");
+
+            activeSystems[1] = true;
+        } catch (IllegalArgumentException e) {
         }
 
         try {
-            ts1 = hardwareMap.get(CRServo.class, "TrayServo1");
-            ts2 = hardwareMap.get(CRServo.class, "TrayServo2");
-        } catch (IllegalArgumentException _) {
+            ts1 = hardwareMap.get(CRServo.class, "leftboxrotator");
+            //ts2 = hardwareMap.get(CRServo.class, "rightboxrotator");
+
+            activeSystems[2] = true;
+        } catch (IllegalArgumentException e) {
         }
 
         try {
-            vs = hardwareMap.get(DcMotor.class, "ViperSlide");
-            vsm = hardwareMap.get(DcMotor.class, "SlideMotor");
-        } catch (IllegalArgumentException _) {
+            vs = hardwareMap.get(DcMotor.class, "viperslidemotor");
+            vsm = hardwareMap.get(DcMotor.class, "viperslidepullmotor");
+
+            activeSystems[3] = true;
+        } catch (IllegalArgumentException e) {
         }
 
-        //fr.setDirection(DcMotorSimple.Direction.REVERSE);
-        //br.setDirection(DcMotorSimple.Direction.REVERSE);
+        try {
+            lis = hardwareMap.get(CRServo.class, "leftintake");
+            ris = hardwareMap.get(CRServo.class, "rightintake");
+
+            activeSystems[4] = true;
+        } catch (IllegalArgumentException e) {
+        }
+
+        telemetry.addData("Drivetrain Active", activeSystems[0]);
+        telemetry.addData("Tray Intakes Active", activeSystems[1]);
+        telemetry.addData("Tray Rotators Active", activeSystems[2]);
+        telemetry.addData("Slides Active", activeSystems[3]);
+        telemetry.addData("Main Intakes Active", activeSystems[4]);
+
+        if (Arrays.equals(activeSystems, allSystemsGo)) {
+            telemetry.addLine("All systems go.");
+        } else {
+            telemetry.addLine("All systems are not initialized. Be prepared for a NullPointerException.");
+        }
+
+        telemetry.update();
+
+        fr.setDirection(DcMotorSimple.Direction.REVERSE);
+        br.setDirection(DcMotorSimple.Direction.REVERSE);
 
         waitForStart();
 
         while (opModeIsActive()) {
+            // g1
+
             drive = gamepad1.left_stick_y;
             strafe = -gamepad1.left_stick_x;
             rotate = -gamepad1.right_stick_x;
@@ -99,72 +137,63 @@ public class TeleOpFeb extends LinearOpMode {
             blPower = drive + strafe + rotate;
             brPower = drive + strafe - rotate;
 
-            /*
-            fl.setPower(mf * flPower);
-            fr.setPower(mf * frPower);
-            bl.setPower(mf * blPower);
-            br.setPower(mf * brPower);
-             */
-            // Temporarily controllable for all – testing required to know what intakes and what outtakes
-            if (gamepad1.a) lis.setPower(-1);
-            if (gamepad1.b) lis.setPower(1);
-            if (gamepad1.x) ris.setPower(-1);
-            if (gamepad1.y) ris.setPower(1);
 
-            if (gamepad1.back) lis.setPower(0);
-            if (gamepad1.start) ris.setPower(0);
-            /*
-            vs.setPower(gamepad1.left_stick_y);
+            fl.setPower(f[0] * flPower);
+            fr.setPower(f[0] * frPower);
+            bl.setPower(f[0] * blPower);
+            br.setPower(f[0] * brPower);
 
-            vsm.setPower(-gamepad1.left_trigger);
-            vsm.setPower(gamepad1.right_trigger);
-             */
 
-            // Temporarily controllable for all – testing required to know what intakes and what outtakes
+            // g2
+
+            // intake on
             if (gamepad2.a) {
+                mouth.setPower(1);
                 lis.setPower(-1);
-                last_button1 = 'a';
-            }
-            if (gamepad2.b) {
-                lis.setPower(1);
-                last_button1 = 'b';
-            }
-            if (gamepad2.x) {
-                ris.setPower(-1);
-                last_button2 = 'x';
-            }
-            if (gamepad2.y) {
                 ris.setPower(1);
-                last_button2 = 'y';
             }
 
-            if (gamepad2.left_stick_x > 0.2 || gamepad2.left_stick_x < -0.2)
-                lis.setPower(0);
-            if (gamepad2.right_stick_x > 0.2 || gamepad2.right_stick_x < -0.2)
-                ris.setPower(0);
+            // output on
+            if (gamepad2.b) {
+                anus.setPower(1);
+            }
 
+            if (gamepad2.y) {
+                anus.setPower(-1);
+            }
+
+            // intake off
+            if (gamepad2.left_bumper) {
+                mouth.setPower(0);
+                lis.setPower(0);
+                ris.setPower(0);
+            }
+
+            // output off
+            if (gamepad2.right_bumper)
+                anus.setPower(0);
+
+            // tray rotators
             if (gamepad2.back) {
-                ts1.setPower(0.5);
-                ts2.setPower(0.5);
+                ts1.setPower(f[1]);
+                //ts2.setPower(-f[1]);
             }
             if (gamepad2.start) {
-                ts1.setPower(-0.5);
-                ts2.setPower(-0.5);
+                ts1.setPower(-f[1]);
+                //ts2.setPower(-f[1]);
             }
             if (!gamepad2.back && !gamepad2.start) {
                 ts1.setPower(0);
-                ts2.setPower(0);
+                //ts2.setPower(0);
             }
 
-            /*
+            vs.setPower(gamepad2.left_stick_y);
+            vsm.setPower(gamepad2.right_stick_y);
+
             telemetry.addData("flPos", fl.getCurrentPosition());
             telemetry.addData("frPos", fr.getCurrentPosition());
             telemetry.addData("blPos", bl.getCurrentPosition());
             telemetry.addData("brPos", br.getCurrentPosition());
-             */
-
-            telemetry.addData("last_button1", last_button1);
-            telemetry.addData("last_button2", last_button2);
 
             telemetry.update();
         }
