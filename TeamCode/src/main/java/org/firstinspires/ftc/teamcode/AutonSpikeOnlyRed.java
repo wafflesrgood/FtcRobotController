@@ -84,9 +84,7 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
     private DcMotor leftDriveB = null;
     private DcMotor rightDriveF = null;
     private DcMotor rightDriveB = null;
-    private Servo Wrist = null;
-    private Servo CRPixelPusher = null;
-    //private Servo Drone = null; not needed in auto
+    private Servo Auto = null;
     private Servo SpikePixel = null;
     private ElapsedTime runtime = new ElapsedTime();
 
@@ -140,6 +138,8 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
         //Back
         leftDriveB = hardwareMap.get(DcMotor.class, "backLeft");
         rightDriveB = hardwareMap.get(DcMotor.class, "backRight");
+        //Auto Servo
+        Auto = hardwareMap.servo.get("auto");
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips

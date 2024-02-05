@@ -90,6 +90,7 @@ public class AutonSpikeOnlyBlue extends LinearOpMode {
     private Servo CRPixelPusher = null;
     //private Servo Drone = null; not needed in auto
     private Servo SpikePixel = null;
+    private Servo Auto = null;
     private ElapsedTime runtime = new ElapsedTime();
 
     static final double COUNTS_PER_MOTOR_REV = 537.7;    // Gobilda Planetary Motor
@@ -140,6 +141,8 @@ public class AutonSpikeOnlyBlue extends LinearOpMode {
         //Back
         leftDriveB = hardwareMap.get(DcMotor.class, "backleft");
         rightDriveB = hardwareMap.get(DcMotor.class, "backright");
+        //Auto Servo
+        Auto = hardwareMap.servo.get("auto");
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
@@ -160,16 +163,14 @@ public class AutonSpikeOnlyBlue extends LinearOpMode {
 
 
         double xCoordinateValue = telemetryTfod();
-        double Heading = 0;
+        double Heading;
         if (xCoordinateValue !=0 && xCoordinateValue < 200)
         {
             Heading = 1; //This represents LEFT
-        }
-        if(xCoordinateValue != 0 && xCoordinateValue > 250)
+        } else if (xCoordinateValue != 0 && xCoordinateValue > 250)
         {
             Heading = 2; //This represents CENTER
-        }
-        else
+        } else
         {
             Heading = 3; //DEFAULT HEADING IS RIGHT
         }
