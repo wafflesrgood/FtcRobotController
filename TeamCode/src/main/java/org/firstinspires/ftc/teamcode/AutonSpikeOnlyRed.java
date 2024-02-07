@@ -75,7 +75,7 @@ import java.util.List;
 
 @Autonomous
 
-public class AutonSpikeOnlyBlue extends LinearOpMode {
+public class AutonSpikeOnlyRed extends LinearOpMode {
     //
     // Camera usage initializations//
     /*private static final boolean USE_WEBCAM = true;
