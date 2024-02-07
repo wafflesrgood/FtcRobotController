@@ -76,7 +76,8 @@ import java.util.List;
 @Autonomous
 
 public class AutoDrivingTester extends LinearOpMode {
-    //Camera usage initializations//
+    //
+    // Camera usage initializations//
     /*private static final boolean USE_WEBCAM = true;
     private TfodProcessor tfod;
     private VisionPortal visionPortal;
@@ -142,11 +143,11 @@ public class AutoDrivingTester extends LinearOpMode {
         telemetry.update();
         // Initialize the drive system variables.
         //Front
-        leftDriveF = hardwareMap.get(DcMotor.class, "fl");
-        rightDriveF = hardwareMap.get(DcMotor.class, "fr");
+        leftDriveF = hardwareMap.get(DcMotor.class, "frontleft");
+        rightDriveF = hardwareMap.get(DcMotor.class, "frontright");
         //Back
-        leftDriveB = hardwareMap.get(DcMotor.class, "bl");
-        rightDriveB = hardwareMap.get(DcMotor.class, "br");
+        leftDriveB = hardwareMap.get(DcMotor.class, "backleft");
+        rightDriveB = hardwareMap.get(DcMotor.class, "backright");
         //Auto Servo
         Auto = hardwareMap.servo.get("auto");
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
@@ -192,9 +193,17 @@ public class AutoDrivingTester extends LinearOpMode {
 
         //write function that lets strafing right x inches happen and put it here.
         //right?
-        encoderDrive(DRIVE_SPEED, 12, 12, 3.0);
-
+       //THIS WORKS FOR THE RIGHT encoderDrive(DRIVE_SPEED, -24, -24, 3.0);
+        //THIS IS GOOD FOR CENTER
+        //encoderDrive(DRIVE_SPEED, -26, -26, 3.0);
+        //encoderDrive(DRIVE_SPEED, 24, -24, 3.0);
+        //encoderDrive(DRIVE_SPEED, 8, 8, 3.0);
         //left?
+        encoderDrive(DRIVE_SPEED, -26, -26, 3.0);
+        encoderDrive(DRIVE_SPEED, 24, -24, 3.0);
+        encoderDrive(DRIVE_SPEED, 24, -24, 3.0);
+        encoderDrive(DRIVE_SPEED, 14, 14, 3.0);
+        encoderDrive(DRIVE_SPEED, -4, 4, 3.0);
        // encoderDrive(DRIVE_SPEED, 12, 12, 3.0);
        // encoderDrive(DRIVE_SPEED, -24, 24, 3.0);
 
@@ -202,7 +211,7 @@ public class AutoDrivingTester extends LinearOpMode {
        // encoderDrive(DRIVE_SPEED, 12, 12, 3.0);
        // encoderDrive(DRIVE_SPEED, -12, 12, 3.0);
         //write in the value that lets the auton pixel get dropped. 0.5 is a guess.
-        Auto.setPosition(0);
+        Auto.setPosition(-0.2);
         sleep(1000);
         //TODO: Write code that drives robot to the CORRECT STACK on the board and place yellow
         //TODO: Write code that drives robot to white stack and run function to pick up
@@ -213,7 +222,7 @@ public class AutoDrivingTester extends LinearOpMode {
         // encoderDrive(DRIVE_SPEED, -24, -24, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
 
         // telemetry.addData("Path", "Complete");
-        telemetry.update();
+
         sleep(1000);  // pause to display final telemetry message.
     }
 

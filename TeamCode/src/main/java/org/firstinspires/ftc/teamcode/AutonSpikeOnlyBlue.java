@@ -33,7 +33,9 @@ import android.util.Size;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -74,7 +76,8 @@ import java.util.List;
 @Autonomous
 
 public class AutonSpikeOnlyBlue extends LinearOpMode {
-    //Camera usage initializations//
+    //
+    // Camera usage initializations//
     /*private static final boolean USE_WEBCAM = true;
     private TfodProcessor tfod;
     private VisionPortal visionPortal;
@@ -82,14 +85,18 @@ public class AutonSpikeOnlyBlue extends LinearOpMode {
 
      */
     /* Declare OpMode members. */
-    private DcMotor leftDriveF = null;
-    private DcMotor leftDriveB = null;
-    private DcMotor rightDriveF = null;
-    private DcMotor rightDriveB = null;
-    private Servo Wrist = null;
-    private Servo CRPixelPusher = null;
-    //private Servo Drone = null; not needed in auto
-    private Servo SpikePixel = null;
+    DcMotor leftDriveF = null;
+    DcMotor rightDriveF = null;
+    DcMotor leftDriveB= null;
+    DcMotor rightDriveB= null;
+
+    CRServo lis = null;
+    CRServo ris = null;
+
+    CRServo mouth = null;
+    CRServo anus = null;
+
+    CRServo ts1 = null;
     private Servo Auto = null;
     private ElapsedTime runtime = new ElapsedTime();
 
@@ -174,44 +181,42 @@ public class AutonSpikeOnlyBlue extends LinearOpMode {
         {
             Heading = 3; //DEFAULT HEADING IS RIGHT
         }
-        // Wait for the game to start (driver presses PLAY)
+        //TODO: add heading to the telemetry
+
+        // Wait for the game to start (driver presses PLAY)\
+        Auto.setPosition(0.5); //Auto servo is preset.
         waitForStart();
-         //TODO: change function to return the x coordinate and what side spikes on
-                         //Should probably do this BEFORE the waitForStart and give a telemetry update.
         sleep(500);
 
 
-        //TODO: this needs to change to being defined as the return value of telemetryTfod
+
 
         //write function that lets strafing right x inches happen and put it here.
-        encoderDrive(DRIVE_SPEED, 25, 25, 3.0);
-
-        if (Heading == 1) //good experimental val
+        //right?
+        if(Heading == 1)
         {
-            //TODO: write code to drive to left spike, drop spike pix
-            //blah blah blah at spike mark
-            encoderDriveStrafe(DRIVE_SPEED,36, 0, 0.5); //0 is right 1 is left
-            encoderDrive(DRIVE_SPEED, 12, 12, 0.5);
-            SpikePixel.setPosition(0.5);
-            //blah blah blah at the board
-            //1. turn left to face board; 2.forward 36 inches; 3. strafe left 18 inches; 4. back up 10 inches?
+            //drive to the left
+            encoderDrive(DRIVE_SPEED, -26, -26, 3.0);
+            encoderDrive(DRIVE_SPEED, 24, -24, 3.0);
+            encoderDrive(DRIVE_SPEED, 24, -24, 3.0);
+            encoderDrive(DRIVE_SPEED, 14, 14, 3.0);
+            encoderDrive(DRIVE_SPEED, -4, 4, 3.0);
+        }
+        if(Heading == 2)
+        {
+            //drive to the center spike mark
+            encoderDrive(DRIVE_SPEED, -26, -26, 3.0);
+            encoderDrive(DRIVE_SPEED, 24, -24, 3.0);
+            encoderDrive(DRIVE_SPEED, 8, 8, 3.0);
 
         }
-        if (Heading == 2)//good experimental val
+        if(Heading == 3)
         {
-            //TODO: write code to drive to middle spike
-            encoderDriveStrafe(DRIVE_SPEED,50, 0, 0.5); //0 is right 1 is left
-            SpikePixel.setPosition(0.5);
+            //drive to the right spike mark
+            encoderDrive(DRIVE_SPEED, -24, -24, 3.0);
         }
-        else //if(Heading == 3) We will use right as the default statement
-        {
-            //TODO: write code to drive to right spike
-            encoderDriveStrafe(DRIVE_SPEED,36, 0, 0.5); //0 is right 1 is left
-            encoderDrive(DRIVE_SPEED, -12, -12, 0.5);
-            SpikePixel.setPosition(0.5);
-        }
-        //write in the value that lets the auton pixel get dropped. 0.5 is a guess.
 
+        Auto.setPosition(-0.2);
         sleep(1000);
         //TODO: Write code that drives robot to the CORRECT STACK on the board and place yellow
         //TODO: Write code that drives robot to white stack and run function to pick up
@@ -222,7 +227,7 @@ public class AutonSpikeOnlyBlue extends LinearOpMode {
         // encoderDrive(DRIVE_SPEED, -24, -24, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
 
         // telemetry.addData("Path", "Complete");
-        telemetry.update();
+
         sleep(1000);  // pause to display final telemetry message.
     }
 
