@@ -173,13 +173,14 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
         double Heading;
         if (xCoordinateValue !=0 && xCoordinateValue < 200)
         {
-            Heading = 1; //This represents LEFT
-        } else if (xCoordinateValue != 0 && xCoordinateValue > 250)
+            Heading = 3; //This represents RIGHT
+        }
+        else if (xCoordinateValue != 0 && xCoordinateValue > 250)
         {
             Heading = 2; //This represents CENTER
         } else
         {
-            Heading = 3; //DEFAULT HEADING IS RIGHT
+            Heading = 1; //DEFAULT HEADING IS LEFT
         }
         //TODO: add heading to the telemetry
 
