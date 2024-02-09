@@ -45,7 +45,9 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 
+import java.security.Timestamp;
 import java.util.List;
+import java.util.Date;
 
 /*
  * This OpMode illustrates the concept of driving a path based on encoder counts.
@@ -135,7 +137,7 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
     @Override
     public void runOpMode() {
 
-        initTfod(); //TODO: make this return x coord of the object
+        initTfod();
 
         // Wait for the DS start button to be touched.
         telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
@@ -175,14 +177,29 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
         rightDriveB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
+        // Wait for the game to start (driver presses PLAY)\
+        Auto.setPosition(0.5); //Auto servo is preset.
+        waitForStart();
+        sleep(500);
         double xCoordinateValue = telemetryTfod();
+
+        long initialTime = System.currentTimeMillis();
+        long finalTime= System.currentTimeMillis();
+        long diff= finalTime-initialTime;
+        while (diff <5000){
+            xCoordinateValue = telemetryTfod();
+            finalTime = System.currentTimeMillis();
+            diff= finalTime-initialTime;
+        }
+        visionPortal.close(); //saves cpu resources by turning off the camera.
+        // DO NOT TAKE THE ABOVE LINE OUT. THE PROGRAM WILL CRASH IF THE RECOGNITION IS LEFT ON.
         sleep(500);
         double Heading;
-        if (xCoordinateValue !=0 && xCoordinateValue < 200)
+        if (xCoordinateValue !=0 && xCoordinateValue < 220)
         {
             Heading = 2; //This represents CENTER
         }
-        else if (xCoordinateValue != 0 && xCoordinateValue > 200)
+        else if (xCoordinateValue != 0 && xCoordinateValue > 220)
         {
             Heading = 3; //This represents RIGHT
         } else
@@ -192,12 +209,6 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
         //heading is added to telemetry after init is presssed. This is for testing purposes, and for use in actual competition, the recognition needs to happen AFTER start is pressed.
         telemetry.addData("Current Heading:", Heading);
         telemetry.update();
-        // Wait for the game to start (driver presses PLAY)\
-        Auto.setPosition(0.5); //Auto servo is preset.
-        waitForStart();
-        sleep(500);
-
-
 
 
         //write function that lets strafing right x inches happen and put it here.
@@ -205,26 +216,26 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
         if(Heading == 1)
         {
             //drive to the left
-            encoderDrive(DRIVE_SPEED, -26, -26, 3.0); //forward
-            encoderDrive(DRIVE_SPEED, 24, -24, 3.0); //turn left once
-            encoderDrive(DRIVE_SPEED, 24, -24, 3.0); //turn left twice
-            encoderDrive(DRIVE_SPEED, 14, 14, 3.0); //go back a little
-            encoderDrive(DRIVE_SPEED, -4, 4, 3.0); //turn slightly
-            encoderDrive(DRIVE_SPEED, -5, -5, 3.0); //back and forth a little...
-            encoderDrive(DRIVE_SPEED, 5, 5, 3.0);
+            encoderDrive(DRIVE_SPEED, -26, -26, 1.0); //forward
+            encoderDrive(DRIVE_SPEED, 24, -24, 1.0); //turn left once
+            encoderDrive(DRIVE_SPEED, 24, -24, 1.0); //turn left twice
+            encoderDrive(DRIVE_SPEED, 14, 14, 1.0); //go back a little
+            encoderDrive(DRIVE_SPEED, -4, 4, 1.0); //turn slightly
+            encoderDrive(DRIVE_SPEED, -5, -5, 1.0); //back and forth a little...
+            encoderDrive(DRIVE_SPEED, 5, 5, 1.0);
         }
         if(Heading == 2)
         {
             //drive to the center spike mark
-            encoderDrive(DRIVE_SPEED, -26, -26, 3.0);
-            encoderDrive(DRIVE_SPEED, 24, -24, 3.0);
-            encoderDrive(DRIVE_SPEED, 8, 8, 3.0);
+            encoderDrive(DRIVE_SPEED, -26.5, -26.5, 1.0);
+            encoderDrive(DRIVE_SPEED, 24, -24, 1.0);
+            encoderDrive(DRIVE_SPEED, 10, 10, 1.0);
 
         }
         if(Heading == 3)
         {
             //drive to the right spike mark
-            encoderDrive(DRIVE_SPEED, -24, -24, 3.0);
+            encoderDrive(DRIVE_SPEED, -18, -18, 1.0);
             //the following code is optional.
             // encoderDrive(DRIVE_SPEED, 24, -24, 3.0);
             // encoderDrive(DRIVE_SPEED, -24, -24, 3.0);
@@ -234,7 +245,7 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
             // ris.setPower(-1);
         }
 
-        Auto.setPosition(-0.2);
+        Auto.setPosition(-0.3);
         sleep(1000);
         //TODO: If time allows, add in code for parking and placing the yellow pixel in the floor zone
 
@@ -456,21 +467,21 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
      * @return
      */
     private double telemetryTfod() {
-        double ReturnX = 0;
 
+        sleep(1000);
         List<Recognition> currentRecognitions = tfod.getRecognitions();
         telemetry.addData("# Objects Detected", currentRecognitions.size());
 
         // Step through the list of recognitions and display info for each one.
+        double x= 0;
         for (Recognition recognition : currentRecognitions) {
-            double x = (recognition.getLeft() + recognition.getRight()) / 2 ;
+            x = (recognition.getLeft() + recognition.getRight()) / 2 ;
             double y = (recognition.getTop()  + recognition.getBottom()) / 2 ;
-
             telemetry.addData(""," ");
             telemetry.addData("Image", "%s (%.0f %% Conf.)", recognition.getLabel(), recognition.getConfidence() * 100);
             telemetry.addData("- Position", "%.0f / %.0f", x, y);
             telemetry.addData("- Size", "%.0f x %.0f", recognition.getWidth(), recognition.getHeight());
-            ReturnX = x;
-        }  return ReturnX; // This used to be a for loop, but now I make it return the x value after one recognition. Risky? Maybe..
+
+        }  return x; // This used to be a for loop, but now I make it return the x value after one recognition. Risky? Maybe..
     }   // end method telemetryTfod()
 }
