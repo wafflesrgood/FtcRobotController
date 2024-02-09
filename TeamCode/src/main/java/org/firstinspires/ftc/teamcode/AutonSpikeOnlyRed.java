@@ -119,7 +119,7 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
     private static final String TFOD_MODEL_FILE = "/sdcard/FIRST/tflitemodels/model_RedTeamProp.tflite";
     // Define the labels recognized in the model for TFOD (must be in training order!)
     private static final String[] LABELS = {
-            "BlueProp",
+            "RedProp",
     };
 
     /**
@@ -150,6 +150,12 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
         rightDriveB = hardwareMap.get(DcMotor.class, "backright");
         //Auto Servo
         Auto = hardwareMap.servo.get("auto");
+        //box servos that control wheels
+        mouth = hardwareMap.crservo.get("mouth");
+        anus = hardwareMap.crservo.get("anus");
+        //star wheels
+        lis = hardwareMap.get(CRServo.class, "leftintake");
+        ris = hardwareMap.get(CRServo.class, "rightintake");
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
@@ -170,20 +176,22 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
 
 
         double xCoordinateValue = telemetryTfod();
+        sleep(500);
         double Heading;
         if (xCoordinateValue !=0 && xCoordinateValue < 200)
         {
-            Heading = 3; //This represents RIGHT
-        }
-        else if (xCoordinateValue != 0 && xCoordinateValue > 250)
-        {
             Heading = 2; //This represents CENTER
+        }
+        else if (xCoordinateValue != 0 && xCoordinateValue > 200)
+        {
+            Heading = 3; //This represents RIGHT
         } else
         {
             Heading = 1; //DEFAULT HEADING IS LEFT
         }
-        //TODO: add heading to the telemetry
-
+        //heading is added to telemetry after init is presssed. This is for testing purposes, and for use in actual competition, the recognition needs to happen AFTER start is pressed.
+        telemetry.addData("Current Heading:", Heading);
+        telemetry.update();
         // Wait for the game to start (driver presses PLAY)\
         Auto.setPosition(0.5); //Auto servo is preset.
         waitForStart();
@@ -197,11 +205,13 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
         if(Heading == 1)
         {
             //drive to the left
-            encoderDrive(DRIVE_SPEED, -26, -26, 3.0);
-            encoderDrive(DRIVE_SPEED, 24, -24, 3.0);
-            encoderDrive(DRIVE_SPEED, 24, -24, 3.0);
-            encoderDrive(DRIVE_SPEED, 14, 14, 3.0);
-            encoderDrive(DRIVE_SPEED, -4, 4, 3.0);
+            encoderDrive(DRIVE_SPEED, -26, -26, 3.0); //forward
+            encoderDrive(DRIVE_SPEED, 24, -24, 3.0); //turn left once
+            encoderDrive(DRIVE_SPEED, 24, -24, 3.0); //turn left twice
+            encoderDrive(DRIVE_SPEED, 14, 14, 3.0); //go back a little
+            encoderDrive(DRIVE_SPEED, -4, 4, 3.0); //turn slightly
+            encoderDrive(DRIVE_SPEED, -5, -5, 3.0); //back and forth a little...
+            encoderDrive(DRIVE_SPEED, 5, 5, 3.0);
         }
         if(Heading == 2)
         {
@@ -215,19 +225,22 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
         {
             //drive to the right spike mark
             encoderDrive(DRIVE_SPEED, -24, -24, 3.0);
+            //the following code is optional.
+            // encoderDrive(DRIVE_SPEED, 24, -24, 3.0);
+            // encoderDrive(DRIVE_SPEED, -24, -24, 3.0);
+            //intake is reversed to spit out.
+            // mouth.setPower(-1);
+            // lis.setPower(1);
+            // ris.setPower(-1);
         }
 
         Auto.setPosition(-0.2);
         sleep(1000);
-        //TODO: Write code that drives robot to the CORRECT STACK on the board and place yellow
-        //TODO: Write code that drives robot to white stack and run function to pick up
-        //TODO: write code that drives robot to board and place two pixels
+        //TODO: If time allows, add in code for parking and placing the yellow pixel in the floor zone
 
         // encoderDrive(DRIVE_SPEED,  48,  48, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
         // encoderDrive(TURN_SPEED,   12, -12, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
         // encoderDrive(DRIVE_SPEED, -24, -24, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
-
-        // telemetry.addData("Path", "Complete");
 
         sleep(1000);  // pause to display final telemetry message.
     }
@@ -374,13 +387,7 @@ public class AutonSpikeOnlyRed extends LinearOpMode {
     }
 
     ///Function Library /////
-    private void DropPixel() {
-        //TODO: Write code that will place currently held pixels onto the backboard.
-    }
 
-    private void PickUpPixels() {
-        //TODO: Write code that will pick up two white pixels from the stack into the robots posession.
-    }
     //FUNCTIONS FOR THE VIDEO ANALYSIS BELOW:
     private void initTfod() {
 
