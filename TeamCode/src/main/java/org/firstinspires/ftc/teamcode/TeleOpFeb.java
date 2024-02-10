@@ -83,8 +83,8 @@ public class TeleOpFeb extends LinearOpMode {
         }
 
         try {
-            ts1 = hardwareMap.get(CRServo.class, "leftboxrotator");
-            //ts2 = hardwareMap.get(CRServo.class, "rightboxrotator");
+            ts1 = hardwareMap.get(CRServo.class, "rightboxrotator");
+            //ts2 = hardwareMap.get(CRServo.class, "leftboxrotator");
 
             activeSystems[2] = true;
         } catch (IllegalArgumentException e) {
@@ -174,18 +174,8 @@ public class TeleOpFeb extends LinearOpMode {
                 anus.setPower(0);
 
             // tray rotators
-            if (gamepad2.back) {
-                ts1.setPower(f[1]);
-                //ts2.setPower(-f[1]);
-            }
-            if (gamepad2.start) {
-                ts1.setPower(-f[1]);
-                //ts2.setPower(-f[1]);
-            }
-            if (!gamepad2.back && !gamepad2.start) {
-                ts1.setPower(0);
-                //ts2.setPower(0);
-            }
+            ts1.setPower(-gamepad2.left_trigger);
+            ts1.setPower(gamepad2.right_trigger);
 
             vs.setPower(gamepad2.left_stick_y);
             vsm.setPower(gamepad2.right_stick_y);
