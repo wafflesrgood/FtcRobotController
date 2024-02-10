@@ -32,8 +32,8 @@ public class TeleOpFeb extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         //                         drive, tray intakes, tray rotators, slides, main intakes
-        boolean activeSystems[] = {false, false,        false,         false,         false};
-        boolean allSystemsGo[] = {true, true, true, true, true};
+        boolean[] activeSystems = {false, false,        false,         false,         false};
+        boolean[] allSystemsGo = {true, true, true, true, true};
 
         double drive;
         double strafe;
@@ -45,7 +45,7 @@ public class TeleOpFeb extends LinearOpMode {
         double brPower;
 
         //            movement factor, tray rotator factor
-        double f[] = {0.25,            0.35                };
+        double[] f = {1,               0.225              };
 
         DcMotor fl = null;
         DcMotor fr = null;
@@ -59,7 +59,7 @@ public class TeleOpFeb extends LinearOpMode {
         CRServo anus = null;
 
         CRServo ts1 = null;
-        CRServo ts2 = null;
+        //CRServo ts2 = null;
 
         DcMotor vs = null;
         DcMotor vsm = null;
@@ -83,7 +83,7 @@ public class TeleOpFeb extends LinearOpMode {
         }
 
         try {
-            ts1 = hardwareMap.get(CRServo.class, "rightboxrotator");
+            ts1 = hardwareMap.crservo.get("rightboxrotator");
             //ts2 = hardwareMap.get(CRServo.class, "leftboxrotator");
 
             activeSystems[2] = true;
@@ -91,16 +91,16 @@ public class TeleOpFeb extends LinearOpMode {
         }
 
         try {
-            vs = hardwareMap.get(DcMotor.class, "viperslidemotor");
-            vsm = hardwareMap.get(DcMotor.class, "viperslidepullmotor");
+            vs = hardwareMap.dcMotor.get("viperslidemotor");
+            vsm = hardwareMap.dcMotor.get("viperslidepullmotor");
 
             activeSystems[3] = true;
         } catch (IllegalArgumentException e) {
         }
 
         try {
-            lis = hardwareMap.get(CRServo.class, "leftintake");
-            ris = hardwareMap.get(CRServo.class, "rightintake");
+            lis = hardwareMap.crservo.get("leftintake");
+            ris = hardwareMap.crservo.get("rightintake");
 
             activeSystems[4] = true;
         } catch (IllegalArgumentException e) {
@@ -115,7 +115,7 @@ public class TeleOpFeb extends LinearOpMode {
         if (Arrays.equals(activeSystems, allSystemsGo)) {
             telemetry.addLine("All systems go.");
         } else {
-            telemetry.addLine("All systems are not initialized. Be prepared for a NullPointerException.");
+            telemetry.addLine("All systems are not initialized. Be prepared for an exception.");
         }
 
         telemetry.update();
@@ -130,7 +130,7 @@ public class TeleOpFeb extends LinearOpMode {
 
             drive = gamepad1.left_stick_y;
             strafe = -gamepad1.left_stick_x;
-            rotate = -gamepad1.right_stick_x;
+            rotate = 0.5 * -gamepad1.right_stick_x;
 
             flPower = drive - strafe + rotate;
             frPower = drive - strafe - rotate;
@@ -143,6 +143,13 @@ public class TeleOpFeb extends LinearOpMode {
             bl.setPower(f[0] * blPower);
             br.setPower(f[0] * brPower);
 
+            if (gamepad1.left_bumper) {
+                f[0] = 0.25;
+            }
+
+            if (gamepad1.right_bumper) {
+                f[0] = 1;
+            }
 
             // g2
 
@@ -176,6 +183,9 @@ public class TeleOpFeb extends LinearOpMode {
             // tray rotators
             ts1.setPower(-gamepad2.left_trigger);
             ts1.setPower(gamepad2.right_trigger);
+
+            vs.setPower(gamepad1.left_trigger);
+            vs.setPower(-gamepad1.right_trigger);
 
             vs.setPower(gamepad2.left_stick_y);
             vsm.setPower(gamepad2.right_stick_y);
